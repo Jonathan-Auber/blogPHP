@@ -19,10 +19,9 @@ require_once("db.php");
     <div class="container">
         <h2 class="text-center m-5">BIENVENUE</h2>
         <?php
-        $displayArticle = $pdo->prepare("SELECT * FROM articles");
+        $displayArticle = $pdo->prepare("SELECT * FROM articles ORDER BY id DESC");
         $displayArticle->execute();
         $articles = $displayArticle->fetchAll();
-        $order = 20;
 
         ?> <div class="container d-flex flex-wrap">
             <?php foreach ($articles as $article) {
@@ -32,18 +31,16 @@ require_once("db.php");
                 $author = $searchAuthor->fetch();
             ?>
 
-                <div class="card m-5 order-<?= $order; ?>" style="width: 20rem;">
-                    <img src="assets/img/Dune_img.jpeg" class="card-img-top" alt="...">
+                <div class="card m-5" style="width: 20rem;">
+                    <img src="assets/img/Dune_img.jpeg" class="card-img-top" alt="Image de présentation de l'article">
                     <div class="card-body">
                         <h5 class="card-title"><?= $article['Title'] ?></h5>
                         <p class="card-text"><?= $article['Content'] ?></p>
                         <p class="author">Article rédigé par : <span class="fw-bold"><?= $author['username']; ?></span></p>
-                        <div class="d-flex justify-content-between align-items-center"><a href="#" class="btn btn-primary">Lire l'article</a> <span><a href="#" class="mx-3"><i class="fa-regular fa-heart"></i></a><a href="#"><i class="fa-regular fa-thumbs-up"></i></a></span></div>
+                        <div class="d-flex justify-content-between align-items-center"><a href="article.php?id=<?= $article['Id'] ?>" class="btn btn-primary">Lire l'article</a> <span><a href="#" class="mx-3"><i class="fa-regular fa-heart"></i></a><a href="#"><i class="fa-regular fa-thumbs-up"></i></a></span></div>
                     </div>
                 </div>
-            <?php
-                $order--;
-            }  ?>
+            <?php  }  ?>
         </div>
 
 
