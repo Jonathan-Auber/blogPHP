@@ -1,23 +1,22 @@
 <?php
-// On appel la base de données, ou on renvoie les erreurs s'il y en as.
 require_once('db.php');
 require_once('functions.php');
 
-
 // On vérifie si les superglobales sont définies,
 if (isset($_POST["email"], $_POST["confirmEmail"], $_POST["username"], $_POST["password"], $_POST["confirmPassword"])) {
-    // Si c'est le cas, on les affectes dans des variables pour les appelées plus facilement et on retire les espaces et on convertit les caractères spéciaux en entités HTML afin de prévenir des tentatives d'injections de code.
+    // Si c'est le cas, on les affectes dans des variables pour les appelées plus facilement et on effectue un retrait des espaces puis une convertion des caractères spéciaux en entités HTML afin de prévenir des tentatives d'injections de code.
     $email = htmlspecialchars(trim($_POST["email"]));
     $confirmEmail = htmlspecialchars(trim($_POST["confirmEmail"]));
     $username = htmlspecialchars(trim($_POST["username"]));
     $password = htmlspecialchars(trim($_POST["password"]));
     $confirmPassword = htmlspecialchars(trim($_POST["confirmPassword"]));
 
+    // On vérifié que l'email et l'email de confirmation sont bien les mêmes,
     if ($email === $confirmEmail) {
-        // On filtre l'email pour vérifier sa validité,
-        if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
 
-            // Si le mail est valide, nous allons vérifier qu'il n'existe pas dans la base de données,
+        // Puis on filtre l'email pour vérifier sa validité.
+        if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            // Si le mail est valide, nous allons vérifier qu'il n'existe pas dans la base de données :
             // On prépare la requête dans une variable,
             $searchEmail = $pdo->prepare("SELECT email FROM users WHERE email = ?");
             // On execute la requête,
@@ -33,17 +32,22 @@ if (isset($_POST["email"], $_POST["confirmEmail"], $_POST["username"], $_POST["p
                 $searchUsername->execute([$username]);
                 // Enfin on récupère le résultat dans une variable dont la valeur est un booléen.
                 $isUsernameExist = $searchUsername->fetch();
+
                 // Si l'username n'existe pas dans la base de données (= le booléen renvoie false),
                 if (!$isUsernameExist) {
+
                     // Et si la longueur du pseudonyme est la bonne
                     if (strlen($username) >= 4 && strlen($username) <= 255) {
+
                         // On vérifie que le mot de passe comporte au moins 8 caractères dont 1 minuscule, 1 majuscule, 1 chiffre et un caractère spécial et aussi que les mots de passes entrés dans le formulaire sont bien identiques,
                         if (isValidPassword($password) && $password === $confirmPassword) {
-                            // TO BE CONTINUED
+                            // Si c'est bien le cas, on effectue un hachage du mot de passe,
                             $password = password_hash($password, PASSWORD_DEFAULT);
+                            // Puis on prépare la requête pour l'insérer dans la base de données..
                             $insertMember = $pdo->prepare("INSERT INTO users (email, username, passwords) VALUES (?,?,?)");
                             $insertMember->execute([$email, $username, $password]);
-                            $error = "Votre compte à bien été crée !";
+                            $error = "Votre compte à bien été crée ! <br> <a href=\"login.php\">Se connecter</a> ";
+                            // header('Location: index.php');
                         } elseif ($password !== $confirmPassword) {
                             $error = "Les mots de passe rentrer lors du processus sont différents";
                         } else {
@@ -65,8 +69,6 @@ if (isset($_POST["email"], $_POST["confirmEmail"], $_POST["username"], $_POST["p
     } else {
         $error = "Les adresses emails ne correspondent pas !";
     }
-} elseif (empty($_POST["email"] and $_POST["confirmEmail"] and $_POST["username"] and $_POST["password"] and $_POST["confirmPassword"])) {
-    $error = "Tous les champs ne sont pas remplis !";
 }
 ?>
 
