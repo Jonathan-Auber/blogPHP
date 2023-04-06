@@ -12,29 +12,26 @@ if (isset($_SESSION['id'])) {
         $searchUsername = $pdo->prepare("SELECT username FROM users WHERE username = ?");
         $searchUsername->execute([$newUsername]);
         $isUsernameExist = $searchUsername->fetch();
-        var_dump($isUsernameExist);
         if (!$isUsernameExist) {
             $insertUsername = $pdo->prepare("UPDATE users SET username = ? WHERE id = ?");
             $insertUsername->execute([$newUsername, $_SESSION['id']]);
-            header("Location: profil.php?id=".$_SESSION['id']);
+            header("Location: profil.php?id=" . $_SESSION['id']);
         } else {
             $error = "Ce pseudonyme est déjà utilisé";
         }
     }
 
-
     if (isset($_POST['newEmail']) and !empty($_POST['newEmail']) and $_POST['newEmail'] !== $user['Email']) {
         $newEmail = htmlspecialchars(trim($_POST['newEmail']));
-        $isEmailExist = $pdo->prepare("SELECT email FROM users WHERE email = ?");
-        $isEmailExist->execute([$newEmail]);
-        $isEmailExist->fetch();
-
+        $searchEmail = $pdo->prepare("SELECT email FROM users WHERE email = ?");
+        $searchEmail->execute([$newEmail]);
+        $isEmailExist = $searchEmail->fetch();
         if (!$isEmailExist) {
             if ($_POST['newEmail'] === $_POST['confirmNewEmail']) {
                 if (filter_var($newEmail, FILTER_VALIDATE_EMAIL)) {
                     $insertEmail = $pdo->prepare("UPDATE users SET email = ? WHERE id = ?");
                     $insertEmail->execute([$newEmail, $_SESSION['id']]);
-                    header("Location: profil.php?id=".$_SESSION['id']);
+                    header("Location: profil.php?id=" . $_SESSION['id']);
                 } else {
                     $error = "Le mots de passe doit contenir un minimum de 8 caractères, une majuscule et un caractère spécial";
                 }
@@ -48,20 +45,30 @@ if (isset($_SESSION['id'])) {
 
 
 
-    if (isset($_POST['newPassword'], $_POST['confirmNewPassword']) && !empty($_POST['newPassword']) && !empty($_POST['confirmNewPassword'])) {
-        $newPassword = htmlspecialchars(trim(($_POST['newPassword'])));
-        $confirmNewPassword = htmlspecialchars(trim($_POST['confirmNewPassword']));
-        if ($newPassword === $confirmNewPassword) {
-            if (isValidPassword($newPassword)) {
-                $newPassword = password_hash($newPassword, PASSWORD_DEFAULT);
-                $insertPassword = $pdo->prepare("UPDATE users SET passwords = ? WHERE id = ?");
-                $insertPassword->execute([$newPassword, $_SESSION['id']]);
+    if (isset($_POST['newPassword'], $_POST['confirmNewPassword'], $_POST['oldPassword']) && !empty($_POST['newPassword']) && !empty($_POST['confirmNewPassword']) && !empty($_POST['oldPassword'])) {
+        $oldPassword = htmlspecialchars(trim($_POST['oldPassword']));
+        if (password_verify($oldPassword, $user['Passwords'])) {
+            $newPassword = htmlspecialchars(trim(($_POST['newPassword'])));
+            $confirmNewPassword = htmlspecialchars(trim($_POST['confirmNewPassword']));
+            if ($newPassword === $confirmNewPassword) {
+                if (isValidPassword($newPassword)) {
+                    $newPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+                    $insertPassword = $pdo->prepare("UPDATE users SET passwords = ? WHERE id = ?");
+                    $insertPassword->execute([$newPassword, $_SESSION['id']]);
+                    header("Location: profil.php?id=" . $_SESSION['id']);
+                } else {
+                    $error = "Le mots de passe doit contenir un minimum de 8 caractères, une majuscule et un caractère spécial";
+                }
             } else {
-                $error = "Le mots de passe doit contenir un minimum de 8 caractères, une majuscule et un caractère spécial";
+                $error = "Les  nouveaux mots de passe saisis ne correspondent pas !";
             }
         } else {
-            $error = "Les mots de passe saisis ne correspondent pas !";
+            $error = "Votre ancien mot de passe ne correspond pas !";
         }
+    }
+
+    if(isset($_POST['newUsername']) AND $_POST['newUsername'] === $user['Username']) {
+        header("Location: profil.php?id=" . $_SESSION['id']);
     }
 
 
@@ -95,7 +102,7 @@ if (isset($_SESSION['id'])) {
                     <input type="email" class="form-control" id="confirmEmail" name="confirmNewEmail" placeholder="Confirmez votre nouvel email" value="<?php echo $user['Email'] ?>">
                 </div>
                 <div class="form-group mb-3">
-                    <label for="oldPassword">Nouveau mot de passe</label>
+                    <label for="oldPassword">Ancien mot de passe</label>
                     <input type="password" class="form-control" id="oldPassword" name="oldPassword" placeholder="Confirmez votre ancien mot de passe">
                 </div>
 
