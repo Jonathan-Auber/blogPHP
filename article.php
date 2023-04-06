@@ -23,11 +23,14 @@ if (isset($_GET['id']) && $_GET['id'] > 0) {
     </head>
 
     <body>
+    <?php 
+    include_once('header.php');
+    ?>
         <div class="container">
             <h2 class="text-center m-5"><?= $articleInfo['Title'] ?></h2>
-            
+
             <p><?= $articleInfo['Content']  ?></p>
-            <h6>Article rédigé par : <?= $author['username']?></h6>
+            <h6>Article rédigé par : <?= $author['username'] ?></h6>
 
             <?php
             if (isset($error)) {
@@ -41,5 +44,4 @@ if (isset($_GET['id']) && $_GET['id'] > 0) {
     </html>
 <?php
 }
-
 ?>

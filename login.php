@@ -40,6 +40,9 @@ if (isset($_POST["emailConnect"], $_POST["passwordConnect"])) {
 </head>
 
 <body>
+<?php 
+    include_once('header.php');
+    ?>
     <div class="container">
         <h2 class="text-center m-5">CONNECTION</h2>
         <form action="" method="POST">

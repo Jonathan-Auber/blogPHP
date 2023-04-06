@@ -83,6 +83,9 @@ if (isset($_POST["email"], $_POST["confirmEmail"], $_POST["username"], $_POST["p
 </head>
 
 <body>
+<?php 
+    include_once('header.php');
+    ?>
     <div class="container">
         <h2 class="text-center m-5">INSCRIPTION</h2>
         <form action="" method="POST">

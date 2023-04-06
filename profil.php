@@ -21,6 +21,9 @@ if (isset($_GET['id']) and $_GET['id'] > 0) {
     </head>
 
     <body>
+    <?php 
+    include_once('header.php');
+    ?>
         <div class="container">
             <h2 class="text-center m-5"><?php echo "Profil de" . " " . $userInfo['Username']; ?></h2>
             <br><br>
@@ -42,8 +45,4 @@ if (isset($_GET['id']) and $_GET['id'] > 0) {
 
     </html>
 
-<?php }
-
-else {
-    header("Location: logout.php");
-}
+<?php } ?>

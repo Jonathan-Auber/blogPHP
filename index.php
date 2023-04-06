@@ -15,7 +15,9 @@ require_once("db.php");
 </head>
 
 <body>
-    <a href="logout.php">Déco</a>
+    <?php 
+    include_once('header.php');
+    ?>
     <div class="container">
         <h2 class="text-center m-5">BIENVENUE</h2>
         <?php
@@ -23,7 +25,7 @@ require_once("db.php");
         $displayArticle->execute();
         $articles = $displayArticle->fetchAll();
 
-        ?> <div class="container d-flex flex-wrap">
+        ?> <div class="container d-flex flex-wrap justify-content-center">
             <?php foreach ($articles as $article) {
                 $searchAuthor = $pdo->prepare("SELECT username FROM users as u INNER JOIN articles as a ON u.id = ? ");
                 $searchAuthor->execute([$article["User_id"]]);

@@ -39,6 +39,9 @@ if (isset($_SESSION['id'])) {
     </head>
 
     <body>
+    <?php 
+    include_once('header.php');
+    ?>
         <div class="container">
             <h2 class="text-center m-5">Écrire un article</h2>
             <form action="" method="POST">
