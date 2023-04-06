@@ -27,9 +27,13 @@ if (isset($_GET['id']) and $_GET['id'] > 0) {
             Pseudo = <?php echo $userInfo["Username"]; ?>
             <br><br>
             Mail = <?php echo $userInfo["Email"]; ?>
+            <br><br>
             <?php if (isset($_SESSION['id']) and $userInfo['Id'] === $_SESSION['id']) {
             ?>
+                <a href="new_article.php">Ecrire un article</a>
+                <br>
                 <a href="profil_edit.php">Editer mon profil</a>
+                <br>
                 <a href="logout.php">Se déconnecter</a>
             <?php } ?>
         </div>
@@ -39,3 +43,7 @@ if (isset($_GET['id']) and $_GET['id'] > 0) {
     </html>
 
 <?php }
+
+else {
+    header("Location: logout.php");
+}

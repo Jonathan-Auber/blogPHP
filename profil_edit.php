@@ -66,8 +66,8 @@ if (isset($_SESSION['id'])) {
             $error = "Votre ancien mot de passe ne correspond pas !";
         }
     }
-
-    if(isset($_POST['newUsername']) AND $_POST['newUsername'] === $user['Username']) {
+    // A voir si on garde cette condition !!!
+    if (isset($_POST['newUsername']) and $_POST['newUsername'] === $user['Username']) {
         header("Location: profil.php?id=" . $_SESSION['id']);
     }
 

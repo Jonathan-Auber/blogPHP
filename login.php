@@ -14,6 +14,7 @@ if (isset($_POST["emailConnect"], $_POST["passwordConnect"])) {
             $_SESSION['id'] = $data['Id'];
             $_SESSION['email'] = $data['Email'];
             $_SESSION['username'] = $data['Username'];
+            $_SESSION['role'] = $data['Role'];
             if ($data["Role"] === "Admin") {
                 header('Location: admin.php');
             } else {
