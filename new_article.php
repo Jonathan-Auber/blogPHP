@@ -3,8 +3,12 @@ session_start();
 require_once('db.php');
 
 if (isset($_SESSION['id'])) {
-    if (isset($_POST['title'], $_POST['content'])) {
+    if (isset($_POST['title'], $_POST['content'], $_FILES['picture'])) {
         if (!empty($_POST['title']) || !empty($_POST['content'])) {
+            $tmpName = $_FILES['picture']['tmp_name'];
+            $fileName = $_FILES['picture']['name'];
+            $fileSize = $_FILES['picture']['size'];
+            $fileError = $_FILES['picture']['error'];
             $title = htmlspecialchars(trim($_POST['title']));
             $content = htmlspecialchars(trim($_POST['content']));
             $author = $_SESSION['id'];
@@ -14,9 +18,32 @@ if (isset($_SESSION['id'])) {
             if (!$compareResult) {
                 // Ajout du vérification de la longueur du titre, à vérifier
                 if (strlen($title) < 100) {
-                    $insertNewArticle = $pdo->prepare("INSERT INTO articles (title, content, user_id) VALUES (?, ?, ?)");
-                    $insertNewArticle->execute([$title, $content, $author]);
-                    $error = "Votre article est en attente de validation !";
+                    // 
+                    $tabExtension = explode('.', $fileName);
+                    $extension = strtolower(end($tabExtension));
+                    $allowedExtensions = ['jpg', 'png', 'jpeg'];
+                    $maxSize = 500000;
+                    if (in_array($extension, $allowedExtensions)) {
+                        if ($fileSize <= $maxSize) {
+                            if ($fileError === 0) {
+                                $uniqueName = uniqid('$name', true);
+                                $newFileName = $uniqueName . "." . $extension;
+                                move_uploaded_file($tmpName, './upload/picture/' . $newFileName);
+                                $insertNewArticle = $pdo->prepare("INSERT INTO articles (title, content, image, user_id) VALUES (?, ?, ?, ?)");
+                                $insertNewArticle->execute([$title, $content, $newFileName, $author]);
+                                $error = "Votre article est en attente de validation !";
+                            } else {
+                                $error = "Une erreur s'est produite lors du téléchargement de votre fichier !";
+                            }
+                        } else {
+                            $error = "Votre fichier est trop volumineux !";
+                        }
+                    } else {
+                        $error = "L'extension de votre image n'est pas valide !";
+                    }
+
+                    // 
+
                 } else {
                     $error = "Le titre de votre article dépasse les 100 caractère !";
                 }
@@ -49,7 +76,7 @@ if (isset($_SESSION['id'])) {
         ?>
         <div class="container">
             <h2 class="text-center m-5">Écrire un article</h2>
-            <form action="" method="POST">
+            <form action="" method="POST" enctype="multipart/form-data">
                 <!-- Image -->
                 <div class="mb-3">
                     <label for="picture" class="form-label">Photo pour illustrer l'article</label>

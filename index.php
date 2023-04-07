@@ -34,7 +34,7 @@ require_once("db.php");
             ?>
 
                 <div class="card m-5" style="width: 20rem;">
-                    <img src="assets/img/Dune_img.jpeg" class="card-img-top" alt="Image de présentation de l'article">
+                    <img src="upload/picture/<?= $article['Image'] ?>" class="card-img-top" alt="Image de présentation de l'article">
                     <div class="card-body">
                         <h5 class="card-title"><?= $article['Title'] ?></h5>
                         <p class="card-text"><?= $article['Content'] ?></p>
