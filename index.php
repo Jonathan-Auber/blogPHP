@@ -27,7 +27,7 @@ require_once("db.php");
 
         ?> <div class="container d-flex flex-wrap justify-content-center">
             <?php foreach ($articles as $article) {
-                $searchAuthor = $pdo->prepare("SELECT username FROM users as u INNER JOIN articles as a ON u.id = ? ");
+                $searchAuthor = $pdo->prepare("SELECT username FROM users as u INNER JOIN articles as a ON u.id = ?");
                 $searchAuthor->execute([$article["User_id"]]);
                 $searchAuthor->fetch();
                 $author = $searchAuthor->fetch();

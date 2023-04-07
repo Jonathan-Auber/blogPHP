@@ -12,9 +12,14 @@ if (isset($_SESSION['id'])) {
             $compareTitle->execute([$title]);
             $compareResult = $compareTitle->fetch();
             if (!$compareResult) {
-                $insertNewArticle = $pdo->prepare("INSERT INTO articles (title, content, user_id) VALUES (?, ?, ?)");
-                $insertNewArticle->execute([$title, $content, $author]);
-                $error = "Votre article est en attente de validation !";
+                // Ajout du vérification de la longueur du titre, à vérifier
+                if (strlen($title) < 100) {
+                    $insertNewArticle = $pdo->prepare("INSERT INTO articles (title, content, user_id) VALUES (?, ?, ?)");
+                    $insertNewArticle->execute([$title, $content, $author]);
+                    $error = "Votre article est en attente de validation !";
+                } else {
+                    $error = "Le titre de votre article dépasse les 100 caractère !";
+                }
             } else {
                 $error = "Ce titre est déjà utilisé pour un autre article !";
             }
@@ -39,9 +44,9 @@ if (isset($_SESSION['id'])) {
     </head>
 
     <body>
-    <?php 
-    include_once('header.php');
-    ?>
+        <?php
+        include_once('header.php');
+        ?>
         <div class="container">
             <h2 class="text-center m-5">Écrire un article</h2>
             <form action="" method="POST">
