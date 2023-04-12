@@ -43,33 +43,80 @@ if (isset($_POST["email"], $_POST["confirmEmail"], $_POST["username"], $_POST["p
                         if (isValidPassword($password) && $password === $confirmPassword) {
                             // Si c'est bien le cas, on effectue un hachage du mot de passe,
                             $password = password_hash($password, PASSWORD_DEFAULT);
-                            // Puis on prépare la requête pour l'insérer dans la base de données..
-                            $insertMember = $pdo->prepare("INSERT INTO users (email, username, passwords) VALUES (?,?,?)");
-                            $insertMember->execute([$email, $username, $password]);
-                            $error = "Votre compte à bien été crée ! <br> <a href=\"login.php\">Se connecter</a> ";
-                            // header('Location: index.php');
-                        } elseif ($password !== $confirmPassword) {
-                            $error = "Les mots de passe rentrer lors du processus sont différents";
-                        } else {
-                            $error = "Le mots de passe doit contenir un minimum de 8 caractères, une majuscule et un caractère spécial";
+
+                            // On vérifie que les valeurs de la superglobale post on bien été initialisée,
+                            if (!empty($_FILES['avatar']['name'])) {
+                                // On attribue les différentes valeurs qui nous seront utiles par la suite dans des variables,
+                                $tmpName = $_FILES['avatar']['tmp_name'];
+                                $avatarName = $_FILES['avatar']['name'];
+                                $avatarSize = $_FILES['avatar']['size'];
+                                $avatarError = $_FILES['avatar']['error'];
+                                // On créer un tableau qui aura pour dernière valeur l'extension du fichier,
+                                $tabExtension = explode('.', $avatarName);
+                                // On converti en minuscule la dernière valeur du tableau,
+                                $extension = strtolower(end($tabExtension));
+                                // On détermine les extensions autorisées dans une variable,
+                                $allowedExtensions = ['jpg', 'jpeg', 'png'];
+                                // On détermine la taille maximum aurotisée pour le fichier,
+                                $maxSize = 500000;
+                                // Si dans le tableau l'extension correspond....
+                                if (in_array($extension, $allowedExtensions)) {
+                                    // Si le fichier ne dépasse pas la taille autorisée...
+                                    if ($avatarSize <= $maxSize) {
+                                        // Si aucune erreur n'est renvoyée..
+                                        if ($avatarError === 0) {
+                                            // On crée un nom unique pour le fichier,
+                                            $uniqueName = uniqid();
+                                            // On lui ajoute l'extension du fichier,
+                                            $newAvatarName = $uniqueName . "." . $extension;
+                                            // On déplace le fichier dans un dossier spécifique pour le récupérer,
+                                            move_uploaded_file($tmpName, './upload/avatar/' . $newAvatarName);
+                                            // Puis on prépare la requête pour l'insérer dans la base de données..
+                                            $insertMember = $pdo->prepare("INSERT INTO users (email, username, passwords, avatar) VALUES (?,?,?,?)");
+                                            $insertMember->execute([$email, $username, $password, $newAvatarName]);
+                                            $error = "Votre compte à bien été crée !";
+                                            header('Location: login.php');
+                                        } else {
+                                            $errorAvatar = "Une erreur s'est produite lors du téléchargement de votre fichier !";
+                                        }
+                                    } else {
+                                        $errorAvatar = "Votre fichier est trop volumineux !";
+                                    }
+                                } else {
+                                    $errorAvatar = "L'extension de votre image n'est pas valide !";
+                                }
+                            } else {
+                                $defaultAvatar = "avatar.jpg";
+                                // On prépare la requête pour insérer les informations dans la base de données..
+                                $insertMember = $pdo->prepare("INSERT INTO users (email, username, passwords, avatar) VALUES (?,?,?,?)");
+                                $insertMember->execute([$email, $username, $password, $defaultAvatar]);
+                                $error = "Votre compte à bien été crée !";
+                                header('Location: login.php');
+                            }
                         }
+                    } elseif ($password !== $confirmPassword) {
+                        $error = "Les mots de passe rentrer lors du processus sont différents";
                     } else {
-                        $error = "Votre pseudonyme est trop court ou trop long";
+                        $error = "Le mots de passe doit contenir un minimum de 8 caractères, une majuscule et un caractère spécial";
                     }
                 } else {
-                    $error = "Le nom d'utilisateur '$username' existe déjà, veuillez en choisir un autre";
+                    $error = "Votre pseudonyme est trop court ou trop long";
                 }
             } else {
-                $error = "Cette adresse email '$email' existe déjà";
-                // header('Location: login.php');
+                $error = "Le nom d'utilisateur '$username' existe déjà, veuillez en choisir un autre";
             }
         } else {
-            $error = "Votre adresse email est invalide !";
+            $error = "Cette adresse email '$email' existe déjà";
+            // header('Location: login.php');
         }
     } else {
-        $error = "Les adresses emails ne correspondent pas !";
+        $error = "Votre adresse email est invalide !";
     }
+} else {
+    $error = "Les adresses emails ne correspondent pas !";
 }
+
+
 ?>
 
 <!doctype html>
@@ -83,12 +130,12 @@ if (isset($_POST["email"], $_POST["confirmEmail"], $_POST["username"], $_POST["p
 </head>
 
 <body>
-<?php 
+    <?php
     include_once('header.php');
     ?>
     <div class="container">
         <h2 class="text-center m-5">INSCRIPTION</h2>
-        <form action="" method="POST">
+        <form action="" method="POST" enctype="multipart/form-data">
             <div class="form-group mb-3">
                 <label for="email">Adresse email</label>
                 <input required type="email" class="form-control" id="email" name="email" placeholder="name@example.com" value="<?php if (isset($email)) {
@@ -134,6 +181,9 @@ if (isset($_POST["email"], $_POST["confirmEmail"], $_POST["username"], $_POST["p
         <?php
         if (isset($error)) {
             echo '<font color="red">' . $error . '</font>';
+        }
+        if (isset($errorAvatar)) {
+            echo $errorAvatar;
         }
         ?>
     </div>

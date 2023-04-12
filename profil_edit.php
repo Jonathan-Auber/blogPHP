@@ -21,6 +21,7 @@ if (isset($_SESSION['id'])) {
         }
     }
 
+
     if (isset($_POST['newEmail']) and !empty($_POST['newEmail']) and $_POST['newEmail'] !== $user['Email']) {
         $newEmail = htmlspecialchars(trim($_POST['newEmail']));
         $searchEmail = $pdo->prepare("SELECT email FROM users WHERE email = ?");
@@ -66,6 +67,43 @@ if (isset($_SESSION['id'])) {
             $error = "Votre ancien mot de passe ne correspond pas !";
         }
     }
+
+    if (!empty($_FILES['newAvatar']['name'])) {
+        $tmpName = $_FILES['newAvatar']['tmp_name'];
+        $newAvatarName = $_FILES['newAvatar']['name'];
+        $newAvatarSize = $_FILES['newAvatar']['size'];
+        $newAvatarError = $_FILES['newAvatar']['error'];
+        $tabExtension = explode('.', $newAvatarName);
+        $extension = strtolower(end($tabExtension));
+        $allowedExtensions = ['jpeg', 'jpg', 'png'];
+        $maxSize = 500000;
+        if (in_array($extension, $allowedExtensions)) {
+            if ($newAvatarSize <= $maxSize) {
+                if ($newAvatarError === 0) {
+                    $uniqueName = uniqid();
+                    $newAvatarName = $uniqueName . "." . $extension;
+                    move_uploaded_file($tmpName, './upload/avatar/' . $newAvatarName);
+                    $searchPreviousAvatar = $pdo->prepare("SELECT avatar FROM users WHERE id = ?");
+                    $searchPreviousAvatar->execute([$_SESSION['id']]);
+                    $previousAvatar = $searchPreviousAvatar->fetch();
+                    $previousAvatar = current($previousAvatar);
+                    $insertNewAvatar = $pdo->prepare("UPDATE users SET avatar = ? WHERE id = ?");
+                    $insertNewAvatar->execute([$newAvatarName, $_SESSION['id']]);
+                    if ($previousAvatar !== "avatar.png") {
+                        $removePreviousAvatar = './upload/avatar/' . $previousAvatar;
+                        unlink($removePreviousAvatar);
+                        header("Location: profil.php?id=" . $_SESSION['id']);
+                    }
+                } else {
+                    $errorAvatar = "Une erreur s'est produite lors du téléchargement de votre fichier !";
+                }
+            } else {
+                $errorAvatar = "Votre fichier est trop volumineux !";
+            }
+        } else {
+            $errorAvatar = "L'extension de votre image n'est pas valide !";
+        }
+    }
     // A voir si on garde cette condition !!!
     if (isset($_POST['newUsername']) and $_POST['newUsername'] === $user['Username']) {
         header("Location: profil.php?id=" . $_SESSION['id']);
@@ -86,12 +124,12 @@ if (isset($_SESSION['id'])) {
     </head>
 
     <body>
-    <?php 
-    include_once('header.php');
-    ?>
+        <?php
+        include_once('header.php');
+        ?>
         <div class="container">
             <h2 class="text-center m-5">Edition de mon profil</h2>
-            <form action="" method="POST">
+            <form action="" method="POST" enctype="multipart/form-data">
                 <div class="form-group mb-3">
                     <label for="username">Pseudonyme</label>
                     <input type="text" class="form-control" id="username" name="newUsername" placeholder="Votre nouveau pseudonyme" value="<?php echo $user['Username']; ?>">
@@ -118,10 +156,17 @@ if (isset($_SESSION['id'])) {
                     <label for="confirmPassword">Confirmez votre mot de passe</label>
                     <input type="password" class="form-control" id="confirmPassword" name="confirmNewPassword" placeholder="Confirmez votre nouveau mot de passe">
                 </div>
+                <div class="mb-3">
+                    <label for="newAvatar" class="form-label">Avatar</label>
+                    <input class="form-control" type="file" id="newAvatar" name="newAvatar">
+                </div>
                 <button type="submit" name="newSubmit" class="btn btn-primary">Mettre à jour</button>
             </form>
             <?php if (isset($error)) {
                 echo $error;
+                if (isset($errorAvatar)) {
+                    echo $errorAvatar;
+                }
             }
             ?>
         </div>

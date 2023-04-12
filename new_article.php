@@ -16,9 +16,7 @@ if (isset($_SESSION['id'])) {
             $compareTitle->execute([$title]);
             $compareResult = $compareTitle->fetch();
             if (!$compareResult) {
-                // Ajout du vérification de la longueur du titre, à vérifier
                 if (strlen($title) < 100) {
-                    // 
                     $tabExtension = explode('.', $fileName);
                     $extension = strtolower(end($tabExtension));
                     $allowedExtensions = ['jpg', 'png', 'jpeg'];
@@ -41,9 +39,6 @@ if (isset($_SESSION['id'])) {
                     } else {
                         $error = "L'extension de votre image n'est pas valide !";
                     }
-
-                    // 
-
                 } else {
                     $error = "Le titre de votre article dépasse les 100 caractère !";
                 }

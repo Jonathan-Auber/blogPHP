@@ -21,11 +21,13 @@ if (isset($_GET['id']) and $_GET['id'] > 0) {
     </head>
 
     <body>
-    <?php 
-    include_once('header.php');
-    ?>
+        <?php
+        include_once('header.php');
+        ?>
         <div class="container">
             <h2 class="text-center m-5"><?php echo "Profil de" . " " . $userInfo['Username']; ?></h2>
+            <!-- Balise de style intégrée pour les photos de profil -->
+            <div class="text-center"><img class="rounded mx-auto d-block" style="max-width: 25%;" src="upload/avatar/<?= $userInfo['Avatar'] ?>" alt="Image de profil"></div>
             <br><br>
             Pseudo = <?php echo $userInfo["Username"]; ?>
             <br><br>
