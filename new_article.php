@@ -90,7 +90,7 @@ if (isset($_SESSION['id'])) {
                 </div>
 
                 <!-- AJouter l'auteur à la bdd -->
-                <button type="submit" name="submit" class="btn btn-primary">Submit</button>
+                <div class="text-center"><button type="submit" name="submit" class="btn btn-primary">Submit</button></div>
             </form>
 
             <?php if (isset($error)) {

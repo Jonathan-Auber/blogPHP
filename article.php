@@ -63,7 +63,7 @@ if (isset($_GET['id']) && $_GET['id'] > 0) {
                 <h6 class="mt-5 text-end">Article rédigé par : <?= $author['username'] ?></h6>
             <?php } ?>
             <?php
-            if ($articleInfo['Statute'] === "Pending" && $_SESSION['role'] === "Admin") {
+            if (isset($_SESSION['role']) && $articleInfo['Statute'] === "Pending" && $_SESSION['role'] === "Admin") {
             ?>
                 <h2 class="text-center m-5"><?= $articleInfo['Title'] ?></h2>
                 <div class="container d-flex justify-content-center"><img src="upload/picture/<?= $articleInfo['Image'] ?>" class="img-fluid m-5" alt="Image de l'article"></div>
@@ -82,7 +82,7 @@ if (isset($_GET['id']) && $_GET['id'] > 0) {
                 <!-- Rédiger la requête de validation -->
             <?php }
 
-            if ($articleInfo['Statute'] === 'Saved' && $_SESSION['id'] === $author['id']) { ?>
+            if (isset($_SESSION['id']) && $articleInfo['Statute'] === 'Saved' && $_SESSION['id'] === $author['id']) { ?>
                 <h2 class="text-center m-5"><?= $articleInfo['Title'] ?></h2>
                 <div class="container d-flex justify-content-center"><img src="upload/picture/<?= $articleInfo['Image'] ?>" class="img-fluid m-5" alt="Image de l'article"></div>
                 <p class=""><?= $articleInfo['Content']  ?></p>

@@ -27,19 +27,126 @@ if (isset($_GET['id']) and $_GET['id'] > 0) {
         <div class="container">
             <h2 class="text-center m-5"><?php echo "Profil de" . " " . $userInfo['Username']; ?></h2>
             <!-- Balise de style intégrée pour les photos de profil -->
-            <div class="text-center"><img class="rounded mx-auto d-block" style="max-width: 25%;" src="upload/avatar/<?= $userInfo['Avatar'] ?>" alt="Image de profil"></div>
-            <br><br>
-            Pseudo = <?php echo $userInfo["Username"]; ?>
-            <br><br>
-            Mail = <?php echo $userInfo["Email"]; ?>
-            <br><br>
-            <?php if (isset($_SESSION['id']) and $userInfo['Id'] === $_SESSION['id']) {
+            <div class="text-center"><img class="rounded mx-auto d-block" style="max-width: 24%;" src="upload/avatar/<?= $userInfo['Avatar'] ?>" alt="Image de profil"></div>
+            <br>
+            <br>
+
+            <?php
+            if (isset($_GET['id']) && $_GET['id'] > 0) {
+                $searchArticles = $pdo->prepare("SELECT id, title, user_id, statute FROM articles WHERE user_id = ? ORDER BY id DESC");
+                $searchArticles->execute([$_GET['id']]);
+                $userArticles = $searchArticles->fetchAll();
+                // On initialise des variable que l'on va incrémenter juste en dessous,
+                $articleValidate = 0;
+                $articleSaved = 0;
+                $articlePending = 0;
+                // On va parcourir le tableau obtenu et initialiser des variables pour les statuts dont nous aurons besoin par la suite.
+                foreach ($userArticles as $article) {
+                    if ($article['statute'] === "Validate") {
+                        $articleValidate++;
+                    } elseif ($article['statute'] === "Pending") {
+                        $articlePending++;
+                    } elseif ($article['statute'] === "Saved") {
+                        $articleSaved++;
+                    }
+                }
+                // AFFICHAGE DES ARTICLES VALIDÉS.
+                if ($articleValidate > 0) {
+                    $rowValidate = 1;
             ?>
-                <a href="new_article.php">Ecrire un article</a>
-                <br>
-                <a href="profil_edit.php">Editer mon profil</a>
-                <br>
-                <a href="logout.php">Se déconnecter</a>
+                    <h4 class="text-center mt-5"><?php echo "Dernier articles de " . $userInfo["Username"]; ?></h4>
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th scope="col" style="width: 4%;">#</th>
+                                <th scope="col">Titre</th>
+                                <th scope="col"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($userArticles as $article) {
+                                if ($article['statute'] === "Validate") {
+                            ?>
+                                    <tr>
+                                        <th class="align-middle" scope="row"><?= $rowValidate ?></th>
+                                        <td class="align-middle"><?= $article['title'] ?></td>
+                                        <td class="align-middle text-end"><a class="btn btn-primary" href="article.php?id=<?= $article['id'] ?>" role="button">Voir l'article</a></td>
+                                    </tr>
+                            <?php
+                                    $rowValidate++;
+                                }
+                            }
+                            ?>
+                        </tbody>
+                    </table>
+                    <?php }
+                //  AFFICHAGE DES ARTICLES SAUVEGARDÉS
+                if (isset($_SESSION['id']) && $_SESSION['id'] === intval($_GET['id'])) {
+                    if ($articleSaved > 0) {
+                        $rowSaved = 1; ?>
+                        <h4 class="text-center mt-5">Mes articles en cours</h4>
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th scope="col" style="width: 4%;">#</th>
+                                    <th scope="col">Titre</th>
+                                    <th scope="col"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php
+                                foreach ($userArticles as $article) {
+                                    if ($article['statute'] === "Saved") {
+                                ?>
+                                        <tr>
+                                            <th class="align-middle" scope="row"><?= $rowSaved ?></th>
+                                            <td class="align-middle"><?= $article['title'] ?></td>
+                                            <td class="align-middle text-end"><a class="btn btn-primary" href="edit_article.php?id=<?= $article['id'] ?>" role="button">Modifier l'article</a></td>
+                                        </tr>
+                                <?php
+                                        $rowSaved++;
+                                    }
+                                } ?>
+                            </tbody>
+                        </table>
+                    <?php
+                    }
+                    // AFFICHAGE DES ARTICLES EN ATTENTE
+                    if ($articlePending > 0) {
+                        $rowPending = 1; ?>
+                        <h4 class="text-center mt-5">Mes articles en attente de validation</h4>
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th scope="col" style="width: 4%;">#</th>
+                                    <th scope="col">Titre</th>
+                                    <th scope="col"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php
+                                foreach ($userArticles as $article) {
+                                    if ($article['statute'] === "Pending") {
+                                ?>
+                                        <tr>
+                                            <th class="align-middle" scope="row"><?= $rowPending ?></th>
+                                            <td class="align-middle"><?= $article['title'] ?></td>
+                                            <td class="align-middle text-end"><a class="btn btn-warning" href="article.php?id=<?= $article['id'] ?>" role="button">En attente</a></button></td>
+
+                                        </tr>
+                                <?php
+                                        $rowPending++;
+                                    }
+                                } ?>
+                            </tbody>
+                        </table>
+                <?php
+                    }
+                }
+
+                ?>
+
+                <!-- Fin du if get id -->
             <?php } ?>
         </div>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/js/bootstrap.bundle.min.js" integrity="sha384-qKXV1j0HvMUeCBQ+QVp7JcfGl760yU08IQ+GpUo5hlbpg51QRiuqHAJz8+BrxE/N" crossorigin="anonymous"></script>
