@@ -15,7 +15,7 @@ require_once("db.php");
 </head>
 
 <body>
-    <?php 
+    <?php
     include_once('header.php');
     ?>
     <div class="container">
@@ -27,22 +27,27 @@ require_once("db.php");
 
         ?> <div class="container d-flex flex-wrap justify-content-center">
             <?php foreach ($articles as $article) {
-                $searchAuthor = $pdo->prepare("SELECT username FROM users as u INNER JOIN articles as a ON u.id = ?");
-                $searchAuthor->execute([$article["User_id"]]);
-                $searchAuthor->fetch();
-                $author = $searchAuthor->fetch();
+                // Affichage des articles validé seulement
+                // if ($article["Statute"] === "Validate") {
+                    $searchAuthor = $pdo->prepare("SELECT username FROM users as u INNER JOIN articles as a ON u.id = ?");
+                    $searchAuthor->execute([$article["User_id"]]);
+                    $searchAuthor->fetch();
+                    $author = $searchAuthor->fetch();
             ?>
 
-                <div class="card m-5" style="width: 20rem;">
-                    <img src="upload/picture/<?= $article['Image'] ?>" class="card-img-top" alt="Image de présentation de l'article">
-                    <div class="card-body">
-                        <h5 class="card-title"><?= $article['Title'] ?></h5>
-                        <p class="card-text overflow-hidden" style="height: 25vh;"><?= $article['Content'] ?></p>
-                        <p class="author">Article rédigé par : <span class="fw-bold"><?= $author['username']; ?></span></p>
-                        <div class="d-flex justify-content-between align-items-center"><a href="article.php?id=<?= $article['Id'] ?>" class="btn btn-primary">Lire l'article</a> <span><a href="#" class="mx-3"><i class="fa-regular fa-heart"></i></a><a href="#"><i class="fa-regular fa-thumbs-up"></i></a></span></div>
+                    <div class="card m-5" style="width: 20rem;">
+                        <img src="upload/picture/<?= $article['Image'] ?>" class="card-img-top" alt="Image de présentation de l'article">
+                        <div class="card-body">
+                            <h5 class="card-title"><?= $article['Title'] ?></h5>
+                            <p class="card-text overflow-hidden" style="height: 25vh;"><?= $article['Content'] ?></p>
+                            <p class="author">Article rédigé par : <span class="fw-bold"><?= $author['username']; ?></span></p>
+                            <div class="d-flex justify-content-between align-items-center"><a href="article.php?id=<?= $article['Id'] ?>" class="btn btn-primary">Lire l'article</a> <span><a href="#" class="mx-3"><i class="fa-regular fa-heart"></i></a><a href="#"><i class="fa-regular fa-thumbs-up"></i></a></span></div>
+                        </div>
                     </div>
-                </div>
-            <?php  }  ?>
+            <?php
+                // }
+            }  
+            ?>
         </div>
 
 

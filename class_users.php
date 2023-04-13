@@ -14,7 +14,6 @@ class Users {
         $this->password = $password;
         $this->email = $email;
         $this->avatar = $avatar;
-        
     }
 
 }
