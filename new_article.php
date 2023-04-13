@@ -24,11 +24,12 @@ if (isset($_SESSION['id'])) {
                     if (in_array($extension, $allowedExtensions)) {
                         if ($fileSize <= $maxSize) {
                             if ($fileError === 0) {
-                                $uniqueName = uniqid('$name', true);
+                                $uniqueName = uniqid();
                                 $newFileName = $uniqueName . "." . $extension;
                                 move_uploaded_file($tmpName, './upload/picture/' . $newFileName);
                                 $insertNewArticle = $pdo->prepare("INSERT INTO articles (title, content, image, user_id) VALUES (?, ?, ?, ?)");
                                 $insertNewArticle->execute([$title, $content, $newFileName, $author]);
+                                // Effectuer une redirection?
                                 $error = "Votre article est en attente de validation !";
                             } else {
                                 $error = "Une erreur s'est produite lors du téléchargement de votre fichier !";
