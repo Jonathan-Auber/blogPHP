@@ -134,6 +134,7 @@ if (isset($_SESSION['id'])) {
                     <label for="username">Pseudonyme</label>
                     <input type="text" class="form-control" id="username" name="newUsername" placeholder="Votre nouveau pseudonyme" value="<?php echo $user['Username']; ?>">
                 </div>
+                <hr class="m-5">
                 <div class="form-group mb-3">
                     <label for="email">Adresse email</label>
                     <input type="email" class="form-control" id="email" name="newEmail" placeholder="Votre nouvel email" value="<?php echo $user['Email'] ?>">
@@ -142,6 +143,8 @@ if (isset($_SESSION['id'])) {
                     <label for="confirmEmail">Confirmez votre adresse email</label>
                     <input type="email" class="form-control" id="confirmEmail" name="confirmNewEmail" placeholder="Confirmez votre nouvel email" value="<?php echo $user['Email'] ?>">
                 </div>
+                <hr class="m-5">
+
                 <div class="form-group mb-3">
                     <label for="oldPassword">Ancien mot de passe</label>
                     <input type="password" class="form-control" id="oldPassword" name="oldPassword" placeholder="Confirmez votre ancien mot de passe">
@@ -156,11 +159,13 @@ if (isset($_SESSION['id'])) {
                     <label for="confirmPassword">Confirmez votre mot de passe</label>
                     <input type="password" class="form-control" id="confirmPassword" name="confirmNewPassword" placeholder="Confirmez votre nouveau mot de passe">
                 </div>
+                <hr class="m-5">
+
                 <div class="mb-3">
                     <label for="newAvatar" class="form-label">Avatar</label>
                     <input class="form-control" type="file" id="newAvatar" name="newAvatar">
                 </div>
-                <button type="submit" name="newSubmit" class="btn btn-primary">Mettre à jour</button>
+                <div class="text-center"><button type="submit" name="newSubmit" class="btn btn-primary m-5">Mettre à jour</button></div>
             </form>
             <?php if (isset($error)) {
                 echo $error;

@@ -29,8 +29,8 @@ if (isset($_SESSION['id'])) {
                                 move_uploaded_file($tmpName, './upload/picture/' . $newFileName);
                                 $insertNewArticle = $pdo->prepare("INSERT INTO articles (title, content, image, user_id) VALUES (?, ?, ?, ?)");
                                 $insertNewArticle->execute([$title, $content, $newFileName, $author]);
-                                // Effectuer une redirection?
-                                $error = "Votre article est en attente de validation !";
+                                header("Location: profil.php?id=".$author);
+                                // $error = "Votre article est en attente de validation !";
                             } else {
                                 $error = "Une erreur s'est produite lors du téléchargement de votre fichier !";
                             }
@@ -90,7 +90,7 @@ if (isset($_SESSION['id'])) {
                 </div>
 
                 <!-- AJouter l'auteur à la bdd -->
-                <div class="text-center"><button type="submit" name="submit" class="btn btn-primary">Submit</button></div>
+                <div class="text-center"><button type="submit" name="submit" class="btn btn-primary">Sauvegarder l'article</button></div>
             </form>
 
             <?php if (isset($error)) {
