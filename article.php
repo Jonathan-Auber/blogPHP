@@ -36,7 +36,7 @@ if (isset($_GET['id']) && $_GET['id'] > 0) {
     }
 
     if (isset($_POST['validate'])) {
-        $validateArticle = $pdo->prepare("UPDATE articles SET statute = 'Validate', reporting = '' WHERE id = ?");
+        $validateArticle = $pdo->prepare("UPDATE articles SET date = CURRENT_TIMESTAMP, statute = 'Validate', reporting = '' WHERE id = ?");
         $validateArticle->execute([$getArticle]);
         header("Location: article.php?id=" . $getArticle);
     }

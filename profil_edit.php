@@ -7,6 +7,7 @@ if (isset($_SESSION['id'])) {
     $reqUser = $pdo->prepare("SELECT * FROM users WHERE id = ?");
     $reqUser->execute([$_SESSION['id']]);
     $user = $reqUser->fetch();
+
     if (isset($_POST['newUsername']) and !empty($_POST['newUsername']) and $_POST['newUsername'] != $user['Username']) {
         $newUsername = htmlspecialchars(trim($_POST['newUsername']));
         $searchUsername = $pdo->prepare("SELECT username FROM users WHERE username = ?");
@@ -105,9 +106,9 @@ if (isset($_SESSION['id'])) {
         }
     }
     // A voir si on garde cette condition !!!
-    if (isset($_POST['newUsername']) and $_POST['newUsername'] === $user['Username']) {
-        header("Location: profil.php?id=" . $_SESSION['id']);
-    }
+    // if (isset($_POST['newUsername']) and $_POST['newUsername'] === $user['Username']) {
+    // header("Location: profil.php?id=" . $_SESSION['id']);
+    // }
 
 
 

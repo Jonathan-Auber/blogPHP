@@ -8,67 +8,141 @@ if (isset($_SESSION['id'], $_GET['id']) && $_GET['id'] > 0) {
     $reqArticle = $pdo->prepare("SELECT * FROM articles WHERE id = ?");
     $reqArticle->execute([$getArticle]);
     $articleInfo = $reqArticle->fetch();
+    // var_dump($articleInfo);
+    // Si l'article a le statut validé
+    if ($articleInfo['Statute'] === "Validate") {
+        // Création d'une nouvelle ligne dans la table tampon pour pouvoir update par la suite
+        if (isset($_POST['newTitle']) || isset($_POST['newContent'])) {
+            if ($_POST['newTitle'] !== $articleInfo['Title'] || $_POST['newContent'] !== $articleInfo['Content'] || !empty(['newPicture']['name'])) {
+                $updatePending = $pdo->prepare("SELECT article_id FROM articles_update WHERE article_id = ?");
+                $updatePending->execute([$getArticle]);
+                $isUpdateExist = $updatePending->fetch();
+                if (!$isUpdateExist) {
+                    $createUpdate = $pdo->prepare("INSERT INTO articles_update (article_id, title, content, image, user_id) VALUES (?, ?, ?, ?, ?)");
+                    $createUpdate->execute([$articleInfo['Id'], $articleInfo['Title'], $articleInfo['Content'], $articleInfo['Image'], $articleInfo['User_id']]);
+                    if (isset($_POST['newTitle']) and !empty($_POST['newTitle']) and $_POST['newTitle'] != $articleInfo['Title']) {
+                        $newTitle = htmlspecialchars(trim($_POST['newTitle']));
+                        $searchTitle = $pdo->prepare("SELECT title FROM articles WHERE title = ?");
+                        $searchTitle->execute([$newTitle]);
+                        $isTitleExist = $searchTitle->fetch();
+                        if (!$isTitleExist) {
+                            $insertTitle = $pdo->prepare("UPDATE articles_update SET title = ? WHERE article_id = ?");
+                            $insertTitle->execute([$newTitle, $getArticle]);
+                            header("Location: article.php?id=" . $getArticle);
+                        } else {
+                            $error = "Ce titre existe déjà";
+                        }
+                    }
 
-    if (isset($_POST['newTitle']) and !empty($_POST['newTitle']) and $_POST['newTitle'] != $articleInfo['Title']) {
-        $newTitle = htmlspecialchars(trim($_POST['newTitle']));
-        $searchTitle = $pdo->prepare("SELECT title FROM articles WHERE title = ?");
-        $searchTitle->execute([$newTitle]);
-        $isTitleExist = $searchTitle->fetch();
-        if (!$isTitleExist) {
-            $insertTitle = $pdo->prepare("UPDATE articles SET title = ? WHERE id = ?");
-            $insertTitle->execute([$newTitle, $getArticle]);
-            header("Location: article.php?id=" . $getArticle);
-        } else {
-            $error = "Ce titre existe déjà";
+                    if (isset($_POST['newContent']) and !empty($_POST['newContent']) and $_POST['newContent'] !== $articleInfo['Content']) {
+                        $newContent = htmlspecialchars(trim($_POST['newContent']));
+                        $insertContent = $pdo->prepare("UPDATE articles_update SET content = ? WHERE article_id = ?");
+                        $insertContent->execute([$newContent, $getArticle]);
+                        header("Location: article.php?id=" . $getArticle);
+                    }
+
+                    if (!empty($_FILES['newPicture']['name'])) {
+                        var_dump($_FILES['newPicture']);
+                        $tmpName = $_FILES['newPicture']['tmp_name'];
+                        $newPictureName = $_FILES['newPicture']['name'];
+                        $newPictureSize = $_FILES['newPicture']['size'];
+                        $newPictureError = $_FILES['newPicture']['error'];
+                        $tabExtension = explode('.', $newPictureName);
+                        $extension = strtolower(end($tabExtension));
+                        $allowedExtensions = ['jpeg', 'jpg', 'png'];
+                        $maxSize = 500000;
+                        if (in_array($extension, $allowedExtensions)) {
+                            if ($newPictureSize <= $maxSize) {
+                                if ($newPictureError === 0) {
+                                    $uniqueName = uniqid();
+                                    $newPictureName = $uniqueName . "." . $extension;
+                                    move_uploaded_file($tmpName, './upload/Picture/' . $newPictureName);
+                                    $searchPreviousPicture = $pdo->prepare("SELECT image FROM articles_update WHERE article_id = ?");
+                                    $searchPreviousPicture->execute([$getArticle]);
+                                    $previousPicture = $searchPreviousPicture->fetch();
+                                    $previousPicture = current($previousPicture);
+                                    $insertnewPicture = $pdo->prepare("UPDATE articles SET image = ? WHERE id = ?");
+                                    $insertnewPicture->execute([$newPictureName, $getArticle]);
+                                    $removePreviousPicture = './upload/Picture/' . $previousPicture;
+                                    unlink($removePreviousPicture);
+                                    header("Location: article.php?id=" . $getArticle);
+                                } else {
+                                    $errorPicture = "Une erreur s'est produite lors du téléchargement de votre fichier !";
+                                }
+                            } else {
+                                $errorPicture = "Votre fichier est trop volumineux !";
+                            }
+                        } else {
+                            $errorPicture = "L'extension de votre image n'est pas valide !";
+                        }
+                    }
+                } else {
+                    $error = "Une mise à jour est déjà en attente !";
+                }
+            }
         }
     }
 
+    // Si l'article n'a pas le statut validé 
+    else {
 
-    if (isset($_POST['newContent']) and !empty($_POST['newContent'])) {
-        $newContent = htmlspecialchars(trim($_POST['newContent']));
-        $insertContent = $pdo->prepare("UPDATE articles SET content = ? WHERE id = ?");
-        $insertContent->execute([$newContent, $getArticle]);
-        header("Location: article.php?id=" . $getArticle);
-    }
+        if (isset($_POST['newTitle']) and !empty($_POST['newTitle']) and $_POST['newTitle'] != $articleInfo['Title']) {
+            $newTitle = htmlspecialchars(trim($_POST['newTitle']));
+            $searchTitle = $pdo->prepare("SELECT title FROM articles WHERE title = ?");
+            $searchTitle->execute([$newTitle]);
+            $isTitleExist = $searchTitle->fetch();
+            if (!$isTitleExist) {
+                $insertTitle = $pdo->prepare("UPDATE articles SET title = ? WHERE id = ?");
+                $insertTitle->execute([$newTitle, $getArticle]);
+                header("Location: article.php?id=" . $getArticle);
+            } else {
+                $error = "Ce titre existe déjà";
+            }
+        }
 
+        if (isset($_POST['newContent']) and !empty($_POST['newContent'])) {
+            $newContent = htmlspecialchars(trim($_POST['newContent']));
+            $insertContent = $pdo->prepare("UPDATE articles SET content = ? WHERE id = ?");
+            $insertContent->execute([$newContent, $getArticle]);
+            header("Location: article.php?id=" . $getArticle);
+        }
 
-
-
-
-    if (!empty($_FILES['newPicture']['name'])) {
-        var_dump($_FILES['newPicture']);
-        $tmpName = $_FILES['newPicture']['tmp_name'];
-        $newPictureName = $_FILES['newPicture']['name'];
-        $newPictureSize = $_FILES['newPicture']['size'];
-        $newPictureError = $_FILES['newPicture']['error'];
-        $tabExtension = explode('.', $newPictureName);
-        $extension = strtolower(end($tabExtension));
-        $allowedExtensions = ['jpeg', 'jpg', 'png'];
-        $maxSize = 500000;
-        if (in_array($extension, $allowedExtensions)) {
-            if ($newPictureSize <= $maxSize) {
-                if ($newPictureError === 0) {
-                    $uniqueName = uniqid();
-                    $newPictureName = $uniqueName . "." . $extension;
-                    move_uploaded_file($tmpName, './upload/Picture/' . $newPictureName);
-                    $searchPreviousPicture = $pdo->prepare("SELECT image FROM articles WHERE id = ?");
-                    $searchPreviousPicture->execute([$getArticle]);
-                    $previousPicture = $searchPreviousPicture->fetch();
-                    $previousPicture = current($previousPicture);
-                    $insertnewPicture = $pdo->prepare("UPDATE articles SET image = ? WHERE id = ?");
-                    $insertnewPicture->execute([$newPictureName, $getArticle]);
-                    $removePreviousPicture = './upload/Picture/' . $previousPicture;
-                    unlink($removePreviousPicture);
-                    header("Location: article.php?id=" . $getArticle);
+        if (!empty($_FILES['newPicture']['name'])) {
+            var_dump($_FILES['newPicture']);
+            $tmpName = $_FILES['newPicture']['tmp_name'];
+            $newPictureName = $_FILES['newPicture']['name'];
+            $newPictureSize = $_FILES['newPicture']['size'];
+            $newPictureError = $_FILES['newPicture']['error'];
+            $tabExtension = explode('.', $newPictureName);
+            $extension = strtolower(end($tabExtension));
+            $allowedExtensions = ['jpeg', 'jpg', 'png'];
+            $maxSize = 500000;
+            if (in_array($extension, $allowedExtensions)) {
+                if ($newPictureSize <= $maxSize) {
+                    if ($newPictureError === 0) {
+                        $uniqueName = uniqid();
+                        $newPictureName = $uniqueName . "." . $extension;
+                        move_uploaded_file($tmpName, './upload/Picture/' . $newPictureName);
+                        $searchPreviousPicture = $pdo->prepare("SELECT image FROM articles WHERE id = ?");
+                        $searchPreviousPicture->execute([$getArticle]);
+                        $previousPicture = $searchPreviousPicture->fetch();
+                        $previousPicture = current($previousPicture);
+                        $insertnewPicture = $pdo->prepare("UPDATE articles SET image = ? WHERE id = ?");
+                        $insertnewPicture->execute([$newPictureName, $getArticle]);
+                        $removePreviousPicture = './upload/Picture/' . $previousPicture;
+                        unlink($removePreviousPicture);
+                        header("Location: article.php?id=" . $getArticle);
+                    } else {
+                        $errorPicture = "Une erreur s'est produite lors du téléchargement de votre fichier !";
+                    }
                 } else {
-                    $errorPicture = "Une erreur s'est produite lors du téléchargement de votre fichier !";
+                    $errorPicture = "Votre fichier est trop volumineux !";
                 }
             } else {
-                $errorPicture = "Votre fichier est trop volumineux !";
+                $errorPicture = "L'extension de votre image n'est pas valide !";
             }
-        } else {
-            $errorPicture = "L'extension de votre image n'est pas valide !";
         }
+        // FIN ELSE
     }
 
 
