@@ -40,7 +40,7 @@ if (isset($_GET['id']) and $_GET['id'] > 0) {
                 $articleValidate = 0;
                 $articleSaved = 0;
                 $articlePending = 0;
-                $articlesRejected = 0;
+                $articleRejected = 0;
                 // On va parcourir le tableau obtenu et initialiser des variables pour les statuts dont nous aurons besoin par la suite.
                 foreach ($userArticles as $article) {
                     if ($article['statute'] === "Validate") {
@@ -54,7 +54,7 @@ if (isset($_GET['id']) and $_GET['id'] > 0) {
                     }
                 }
                 // AFFICHAGE DES ARTICLES VALIDÉS.
-                if (isset($articleValidate) && $articleValidate > 0) {
+                if ($articleValidate > 0) {
                     $rowValidate = 1;
             ?>
                     <h4 class="text-center mt-5"><?php echo "Dernier articles de " . $userInfo["Username"]; ?></h4>
@@ -88,7 +88,7 @@ if (isset($_GET['id']) and $_GET['id'] > 0) {
                     <?php }
                 //  AFFICHAGE DES ARTICLES SAUVEGARDÉS
                 if (isset($_SESSION['id']) && $_SESSION['id'] === intval($_GET['id'])) {
-                    if (isset($articleSaved) && $articleSaved > 0) {
+                    if ($articleSaved > 0) {
                         $rowSaved = 1; ?>
                         <h4 class="text-center mt-5">Mes articles en cours</h4>
                         <table class="table table-hover">
@@ -121,7 +121,7 @@ if (isset($_GET['id']) and $_GET['id'] > 0) {
                     <?php
                     }
                     // AFFICHAGE DES ARTICLES EN ATTENTE
-                    if (isset($articlePending) && $articlePending > 0) {
+                    if ($articlePending > 0) {
                         $rowPending = 1; ?>
                         <h4 class="text-center mt-5">Mes articles en attente de validation</h4>
                         <table class="table table-hover">
@@ -152,7 +152,7 @@ if (isset($_GET['id']) and $_GET['id'] > 0) {
                     <?php
                     }
                     // AFFICHAGE DES ARTICLES REJETÉS
-                    if (isset($articleRejected) && $articleRejected > 0) {
+                    if ($articleRejected > 0) {
                         $rowRejected = 1; ?>
                         <h4 class="text-center mt-5">Mes articles rejeté</h4>
                         <table class="table table-hover">
@@ -171,7 +171,7 @@ if (isset($_GET['id']) and $_GET['id'] > 0) {
                                         <tr>
                                             <th class="align-middle" scope="row"><?= $rowRejected ?></th>
                                             <td class="align-middle"><?= $article['title'] ?></td>
-                                            <td class="align-middle text-end"><a class="btn btn-warning m-1" href="article.php?id=<?= $article['id'] ?>" role="button">En attente</a></button></td>
+                                            <td class="align-middle text-end"><a class="btn btn-danger m-1" href="reject.php?id=<?= $article['id'] ?>" role="button">Voir le détail</a></button></td>
 
                                         </tr>
                                 <?php

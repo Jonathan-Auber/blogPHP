@@ -139,7 +139,6 @@ if (isset($_GET['id']) && $_GET['id'] > 0) {
                             <textarea class="form-control" id="report" name="report" rows="5"></textarea>
                         </div>
                     </form>
-                    <!-- Rédiger la requête de validation -->
                 <?php }
             }
 
@@ -153,7 +152,6 @@ if (isset($_GET['id']) && $_GET['id'] > 0) {
                         <div class="text-center">
                             <a class="btn btn-primary m-5" href="edit_article.php?id=<?= $articleInfo['Id']; ?>">Éditer votre article</a>
                             <button type="submit" name="publish" class="btn btn-success m-5">Publier l'article</button>
-                            <!-- <button type="submit" name="delete" class="btn btn-danger m-5">Supprimer l'article</button> -->
                             <button type="button" class="btn btn-danger m-5" data-bs-toggle="modal" data-bs-target="#exampleModal">Supprimer l'article</button>
 
                             <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
