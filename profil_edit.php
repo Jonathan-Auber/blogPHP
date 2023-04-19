@@ -3,9 +3,9 @@ session_start();
 require_once('db.php');
 require_once('functions.php');
 
-if (isset($_SESSION['id'])) {
+if (isset($_GET['id']) && (intval($_GET['id']) === $_SESSION['id'] || $_SESSION['role'] === "Admin")) {
     $reqUser = $pdo->prepare("SELECT * FROM users WHERE id = ?");
-    $reqUser->execute([$_SESSION['id']]);
+    $reqUser->execute([$_GET['id']]);
     $user = $reqUser->fetch();
 
     if (isset($_POST['newUsername']) and !empty($_POST['newUsername']) and $_POST['newUsername'] != $user['Username']) {
@@ -15,8 +15,8 @@ if (isset($_SESSION['id'])) {
         $isUsernameExist = $searchUsername->fetch();
         if (!$isUsernameExist) {
             $insertUsername = $pdo->prepare("UPDATE users SET username = ? WHERE id = ?");
-            $insertUsername->execute([$newUsername, $_SESSION['id']]);
-            header("Location: profil.php?id=" . $_SESSION['id']);
+            $insertUsername->execute([$newUsername, $_GET['id']]);
+            header("Location: profil.php?id=" . $_GET['id']);
         } else {
             $error = "Ce pseudonyme est déjà utilisé";
         }
@@ -32,8 +32,8 @@ if (isset($_SESSION['id'])) {
             if ($_POST['newEmail'] === $_POST['confirmNewEmail']) {
                 if (filter_var($newEmail, FILTER_VALIDATE_EMAIL)) {
                     $insertEmail = $pdo->prepare("UPDATE users SET email = ? WHERE id = ?");
-                    $insertEmail->execute([$newEmail, $_SESSION['id']]);
-                    header("Location: profil.php?id=" . $_SESSION['id']);
+                    $insertEmail->execute([$newEmail, $_GET['id']]);
+                    header("Location: profil.php?id=" . $_GET['id']);
                 } else {
                     $error = "Le mots de passe doit contenir un minimum de 8 caractères, une majuscule et un caractère spécial";
                 }
@@ -56,8 +56,8 @@ if (isset($_SESSION['id'])) {
                 if (isValidPassword($newPassword)) {
                     $newPassword = password_hash($newPassword, PASSWORD_DEFAULT);
                     $insertPassword = $pdo->prepare("UPDATE users SET passwords = ? WHERE id = ?");
-                    $insertPassword->execute([$newPassword, $_SESSION['id']]);
-                    header("Location: profil.php?id=" . $_SESSION['id']);
+                    $insertPassword->execute([$newPassword, $_GET['id']]);
+                    header("Location: profil.php?id=" . $_GET['id']);
                 } else {
                     $error = "Le mots de passe doit contenir un minimum de 8 caractères, une majuscule et un caractère spécial";
                 }
@@ -85,15 +85,15 @@ if (isset($_SESSION['id'])) {
                     $newAvatarName = $uniqueName . "." . $extension;
                     move_uploaded_file($tmpName, './upload/avatar/' . $newAvatarName);
                     $searchPreviousAvatar = $pdo->prepare("SELECT avatar FROM users WHERE id = ?");
-                    $searchPreviousAvatar->execute([$_SESSION['id']]);
+                    $searchPreviousAvatar->execute([$_GET['id']]);
                     $previousAvatar = $searchPreviousAvatar->fetch();
                     $previousAvatar = current($previousAvatar);
                     $insertNewAvatar = $pdo->prepare("UPDATE users SET avatar = ? WHERE id = ?");
-                    $insertNewAvatar->execute([$newAvatarName, $_SESSION['id']]);
+                    $insertNewAvatar->execute([$newAvatarName, $_GET['id']]);
                     if ($previousAvatar !== "avatar.png") {
                         $removePreviousAvatar = './upload/avatar/' . $previousAvatar;
                         unlink($removePreviousAvatar);
-                        header("Location: profil.php?id=" . $_SESSION['id']);
+                        header("Location: profil.php?id=" . $_GET['id']);
                     }
                 } else {
                     $errorAvatar = "Une erreur s'est produite lors du téléchargement de votre fichier !";
@@ -107,7 +107,7 @@ if (isset($_SESSION['id'])) {
     }
     // A voir si on garde cette condition !!!
     // if (isset($_POST['newUsername']) and $_POST['newUsername'] === $user['Username']) {
-    // header("Location: profil.php?id=" . $_SESSION['id']);
+    // header("Location: profil.php?id=" . $_GET['id']);
     // }
 
 
@@ -182,5 +182,5 @@ if (isset($_SESSION['id'])) {
     </html>
 
 <?php } else {
-    header("Location: login.php");
+    header("Location: logout.php");
 }
