@@ -8,27 +8,7 @@ if (isset($_GET['id']) and $_GET['id'] > 0) {
     $reqUser = $pdo->prepare('SELECT * FROM users WHERE id = ?');
     $reqUser->execute([$getId]);
     $userInfo = $reqUser->fetch();
-    // SUPPRESSION D'UTILISATEUR
-    if (isset($_POST['deleteUser'])) {
-        $accountDeleteId = 1;
-        // On change l'id des articles
-        $updateAllUserArticle = $pdo->prepare("UPDATE articles SET user_id = ? WHERE user_id = ?");
-        $updateAllUserArticle->execute([$accountDeleteId, $getId]);
 
-        // On change l'id des commentaires
-        $updateAllUserComment = $pdo->prepare("UPDATE comments SET user_id = ? WHERE user_id = ?");
-        $updateAllUserComment->execute([$accountDeleteId, $getId]);
-
-        // On supprime l'utilisateur
-        $deleteUser = $pdo->prepare("DELETE FROM users WHERE id = ?");
-        $deleteUser->execute([$getId]);
-   
-        // On supprime les articles non validés qui appartiennent au compte supprimé
-        $deleteInvalidArticle = $pdo->prepare("DELETE FROM articles WHERE user_id = ? AND statute != 'Validate'");
-        $deleteInvalidArticle->execute([$accountDeleteId]);
-
-        header("Location: admin.php");
-    }
     if (isset($_POST['user'])) {
         $moveToUser = $pdo->prepare("UPDATE users SET role = 'User' WHERE id = ?");
         $moveToUser->execute([$getId]);
@@ -69,7 +49,7 @@ if (isset($_GET['id']) and $_GET['id'] > 0) {
             <?php if (isset($_SESSION['role']) && $_SESSION['role'] === "Admin") { ?>
                 <div class="container">
                     <h3 class="text-center m-5">Gérer l'utilisateur</h3>
-                    <form action="" method="POST">
+                    <form action="delete_user.php?id=<?= $getId ?>"  method="POST">
                         <table class="table table-hover">
                             <thead>
                                 <tr>
@@ -112,6 +92,9 @@ if (isset($_GET['id']) and $_GET['id'] > 0) {
                                 </div>
                             </div>
                         </div>
+                    </form>
+                    <form action="" method="POST">
+
                         <div class="text-center">
                             <button type="submit" name="user" class="btn btn-success m-2">Passer au rang utilisateur</button>
                             <button type="submit" name="moderator" class="btn btn-warning m-3">Passer au rang modérateur</button>
