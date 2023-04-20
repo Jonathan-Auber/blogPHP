@@ -102,7 +102,6 @@ if (!isset($_SESSION['id']) || $_SESSION['role'] !== "Admin") {
                             <th class="align-middle" scope="row"><?= $rowPending ?></th>
                             <td class="align-middle"><?= $pendingArticle->Title ?></td>
                             <td class="align-middle text-end">
-                                <a class="btn btn-primary m-1" href="edit_article.php?id=<?= $pendingArticle->Id ?>" role="button">Éditer l'article</a>
                                 <a class="btn btn-success m-1" href="article.php?id=<?= $pendingArticle->Id ?>" role="button">Voir l'article</a>
                             </td>
                         </tr>
@@ -132,8 +131,7 @@ if (!isset($_SESSION['id']) || $_SESSION['role'] !== "Admin") {
                             <th class="align-middle" scope="row"><?= $rowUpdate ?></th>
                             <td class="align-middle"><?= $updateArticle->Title ?></td>
                             <td class="align-middle text-end">
-                                <a class="btn btn-primary m-1" href="edit_article.php?id=<?= $updateArticle->Article_id ?>" role="button">Éditer l'article</a>
-                                <a class="btn btn-success m-1" href="article.php?id=<?= $updateArticle->Article_id ?>" role="button">Voir l'article</a>
+                                <a class="btn btn-success m-1" href="article_updated.php?id=<?= $updateArticle->Article_id ?>" role="button">Voir l'article</a>
                             </td>
                         </tr>
                     <?php

@@ -4,53 +4,27 @@ require_once('db.php');
 
 if (isset($_GET['id']) && $_GET['id'] > 0) {
     $getArticle = intval($_GET['id']);
-    $reqArticle = $pdo->prepare("SELECT * FROM articles WHERE id = ?");
+    $reqArticle = $pdo->prepare("SELECT * FROM articles_update WHERE id = ?");
     $reqArticle->execute([$getArticle]);
     $articleInfo = $reqArticle->fetch();
-    $getAuthor = $pdo->prepare("SELECT u.id, username FROM users as u INNER JOIN articles as a ON u.id = a.user_id WHERE a.id = ?");
+    $getAuthor = $pdo->prepare("SELECT u.id, username FROM users as u INNER JOIN articles_update as a ON u.id = a.user_id WHERE a.id = ?");
     $getAuthor->execute([$getArticle]);
     $author = $getAuthor->fetch();
 
-    // Section réservée autheur
-    if (isset($_POST['publish'])) {
-        $publishArticle = $pdo->prepare("UPDATE articles SET date = CURRENT_TIMESTAMP, statute = 'Pending' WHERE id = ?");
-        $publishArticle->execute([$getArticle]);
-        header("Location: profil.php?id=" . $_SESSION['id']);
-    }
-
-    if (isset($_POST['delete'])) {
-        $pictureName = $articleInfo['Image'];
-        $deletePicture = './upload/picture/' . $pictureName;
-        unlink($deletePicture);
-        $deleteArticle = $pdo->prepare("DELETE FROM articles WHERE id = ?");
-        $deleteArticle->execute([$getArticle]);
-        header("Location: profil.php?id=" . $_SESSION['id']);
-    }
-
     // Section réservée Admin
-    if (isset($_POST['rejected'], $_POST['report'])) {
-        $report = htmlspecialchars(trim($_POST['report']));
-        $rejectedArticle = $pdo->prepare("UPDATE articles SET statute = 'Rejected', reporting = ? WHERE id = ?");
-        $rejectedArticle->execute([$report, $getArticle]);
+    // Delete ?
+    if (isset($_POST['rejected'])) {
+        $rejectedArticle = $pdo->prepare("DELETE FROM articles_update WHERE id = ?");
+        $rejectedArticle->execute([$getArticle]);
         header("Location: admin.php");
     }
 
+    // Récupérer sur la base tampon et envoyé sur la base article
     if (isset($_POST['validate'])) {
         $validateArticle = $pdo->prepare("UPDATE articles SET date = CURRENT_TIMESTAMP, statute = 'Validate', reporting = '' WHERE id = ?");
         $validateArticle->execute([$getArticle]);
         header("Location: article.php?id=" . $getArticle);
     }
-    // Travail COMMENTAIRES
-    // Section commentaire accessible à tous
-    if (isset($_POST['addComment'], $_POST['comment'])) {
-        $comment = htmlspecialchars(trim($_POST['comment']));
-        $insertComment = $pdo->prepare("INSERT INTO comments (user_id, article_id, comment) VALUES (?, ?, ?)");
-        $insertComment->execute([$_SESSION['id'], $getArticle, $comment]);
-        header("Location: article.php?id=" . $getArticle);
-    }
-
-    // Travail COM
-
 
 ?>
     <!doctype html>

@@ -19,7 +19,7 @@ if (isset($_POST["emailConnect"], $_POST["passwordConnect"])) {
             if ($data["Role"] === "Admin") {
                 header('Location: admin.php');
             } else {
-                header('Location: profil.php?id='.$_SESSION["id"]);
+                header('Location: profil.php?id=' . $_SESSION["id"]);
             }
             // header('Location: index.php');
         } else {
@@ -41,7 +41,7 @@ if (isset($_POST["emailConnect"], $_POST["passwordConnect"])) {
 </head>
 
 <body>
-<?php 
+    <?php
     include_once('header.php');
     ?>
     <div class="container">
@@ -58,7 +58,7 @@ if (isset($_POST["emailConnect"], $_POST["passwordConnect"])) {
                 <label for="password">Mot de passe</label>
                 <input required type="password" class="form-control" id="password" name="passwordConnect" placeholder="Mot de passe">
             </div>
-            <button type="submit" name="submitConnect" class="btn btn-primary">Submit</button>
+            <div class="text-center"><button type="submit" name="submitConnect" class="btn btn-primary">Se connecter</button></div>
         </form>
         <?php if (isset($error)) {
             echo $error;
