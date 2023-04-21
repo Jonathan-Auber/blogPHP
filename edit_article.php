@@ -68,14 +68,14 @@ if (isset($_SESSION['id'], $_GET['id']) && $_GET['id'] > 0) {
                                         $uniqueName = uniqid();
                                         $newPictureName = $uniqueName . "." . $extension;
                                         move_uploaded_file($tmpName, './upload/Picture/' . $newPictureName);
-                                        $searchPreviousPicture = $pdo->prepare("SELECT image FROM articles_update WHERE article_id = ?");
-                                        $searchPreviousPicture->execute([$getArticle]);
-                                        $previousPicture = $searchPreviousPicture->fetch();
-                                        $previousPicture = current($previousPicture);
-                                        $insertnewPicture = $pdo->prepare("UPDATE articles SET image = ? WHERE id = ?");
+                                        // $searchPreviousPicture = $pdo->prepare("SELECT image FROM articles_update WHERE article_id = ?");
+                                        // $searchPreviousPicture->execute([$getArticle]);
+                                        // $previousPicture = $searchPreviousPicture->fetch();
+                                        // $previousPicture = current($previousPicture);
+                                        $insertnewPicture = $pdo->prepare("UPDATE articles_update SET image = ? WHERE article_id = ?");
                                         $insertnewPicture->execute([$newPictureName, $getArticle]);
-                                        $removePreviousPicture = './upload/Picture/' . $previousPicture;
-                                        unlink($removePreviousPicture);
+                                        // $removePreviousPicture = './upload/Picture/' . $previousPicture;
+                                        // unlink($removePreviousPicture);
                                         header("Location: article.php?id=" . $getArticle);
                                     } else {
                                         $errorPicture = "Une erreur s'est produite lors du téléchargement de votre fichier !";
@@ -140,7 +140,7 @@ if (isset($_SESSION['id'], $_GET['id']) && $_GET['id'] > 0) {
                             $previousPicture = current($previousPicture);
                             $insertnewPicture = $pdo->prepare("UPDATE articles SET image = ? WHERE id = ?");
                             $insertnewPicture->execute([$newPictureName, $getArticle]);
-                            $removePreviousPicture = './upload/Picture/' . $previousPicture;
+                            $removePreviousPicture = './upload/picture/' . $previousPicture;
                             unlink($removePreviousPicture);
                             header("Location: article.php?id=" . $getArticle);
                         } else {

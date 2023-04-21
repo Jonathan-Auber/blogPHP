@@ -2,25 +2,33 @@
 session_start();
 require_once('db.php');
 
-if (isset($_GET['id']) && $_GET['id'] > 0) {
+if (isset($_GET['id']) && $_GET['id'] > 0 && $_SESSION['role'] === "Admin") {
     $getArticle = intval($_GET['id']);
-    $reqArticle = $pdo->prepare("SELECT * FROM articles_update WHERE article_id = ?");
+    // Récupération des articles originaux
+    $reqArticle = $pdo->prepare("SELECT * FROM articles WHERE id = ?");
     $reqArticle->execute([$getArticle]);
     $articleInfo = $reqArticle->fetch();
+    // Récupération de la mise à jour
+    $reqArticleUpdated = $pdo->prepare("SELECT * FROM articles_update WHERE article_id = ?");
+    $reqArticleUpdated->execute([$getArticle]);
+    $articleUpdatedInfo = $reqArticleUpdated->fetch();
+    // Récupération de l'auteur
     $getAuthor = $pdo->prepare("SELECT u.id, username FROM users as u INNER JOIN articles_update as a ON u.id = a.user_id WHERE a.article_id = ?");
     $getAuthor->execute([$getArticle]);
     $author = $getAuthor->fetch();
 
     // Section réservée Admin
-    // Delete ?
-    if (isset($_POST['rejected'])) {
-        $rejectedArticle = $pdo->prepare("DELETE FROM articles_update WHERE id = ?");
+    if (isset($_POST['rejectedUpdate'])) {
+        $removeUpdatePicture = './upload/picture/' . $articleUpdatedInfo['Image'];
+        unlink($removeUpdatePicture);
+        $rejectedArticle = $pdo->prepare("DELETE FROM articles_update WHERE article_id = ?");
         $rejectedArticle->execute([$getArticle]);
+        // Envoyer un mail à l'utilisateur?
         header("Location: admin.php");
     }
 
     // Récupérer sur la base tampon et envoyé sur la base article
-    if (isset($_POST['validate'])) {
+    if (isset($_POST['validateUpdate'])) {
         $validateArticle = $pdo->prepare("UPDATE articles SET date = CURRENT_TIMESTAMP, statute = 'Validate', reporting = '' WHERE id = ?");
         $validateArticle->execute([$getArticle]);
         header("Location: article.php?id=" . $getArticle);
@@ -43,17 +51,26 @@ if (isset($_GET['id']) && $_GET['id'] > 0) {
         include_once('header.php'); ?>
         <div class="container">
             <?php
-            if (isset($_SESSION['role']) && ($_SESSION['role'] === "Admin" || $_SESSION['id'] === $articleInfo['User_id'])) {
+            if (isset($_SESSION['role']) && ($_SESSION['role'] === "Admin" || $_SESSION['id'] === $articleUpdatedInfo['User_id'])) {
             ?>
-                <h2 class="text-center m-5"><?= $articleInfo['Title'] ?></h2>
-                <div class="container d-flex justify-content-center"><img src="upload/picture/<?= $articleInfo['Image'] ?>" class="img-fluid m-5" alt="Image de l'article"></div>
-                <p class=""><?= $articleInfo['Content']  ?></p>
+                <div class="d-flex">
+                    <h2 class="text-center m-3 w-50"><?= $articleInfo['Title'] ?></h2>
+                    <h2 class="text-center m-3 w-50"><?= $articleUpdatedInfo['Title'] ?></h2>
+                </div>
+                <div class="container d-flex">
+                    <div class="w-50 p-3"><img src="upload/picture/<?= $articleInfo['Image'] ?>" class="img-fluid m-3" alt="Image de l'article"></div>
+                    <div class="w-50 p-3"><img src="upload/picture/<?= $articleUpdatedInfo['Image'] ?>" class="img-fluid m-3" alt="Image de l'article"></div>
+                </div>
+                <div class="d-flex">
+                    <p class="m-4 w-50"><?= $articleInfo['Content']  ?></p>
+                    <p class="m-4 w-50"><?= $articleUpdatedInfo['Content']  ?></p>
+                </div>
                 <h6 class="mt-5 text-end">Article rédigé par : <?= $author['username'] ?></h6>
                 <?php if ($_SESSION['role'] === "Admin") { ?>
                     <form action="" method="POST">
                         <div class="text-center">
-                            <button type="submit" name="rejected" class="btn btn-danger m-5">Rejeter l'article</button>
-                            <button type="submit" name="validate" class="btn btn-success m-5">Valider l'article</button>
+                            <button type="submit" name="rejectedUpdate" class="btn btn-danger m-5">Rejeter l'article</button>
+                            <button type="submit" name="validateUpdate" class="btn btn-success m-5">Valider l'article</button>
                         </div>
                     </form>
             <?php }
@@ -72,5 +89,7 @@ if (isset($_GET['id']) && $_GET['id'] > 0) {
 
     </html>
 <?php
+} else {
+    header("Location: index.php");
 }
 ?>

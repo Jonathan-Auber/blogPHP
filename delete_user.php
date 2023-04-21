@@ -1,7 +1,7 @@
 <?php
 session_start();
 require_once('db.php');
-
+// IL FAUT SUPPRIMER LAVATAR DU DOSSIER
 
 if (isset($_GET['id']) && $_GET['id'] > 0) {
     $getId = intval($_GET['id']);
