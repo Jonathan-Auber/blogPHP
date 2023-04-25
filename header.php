@@ -27,7 +27,7 @@
                         <li><a class="dropdown-item" href="profil.php?id=<?= $_SESSION['id'] ?>">Profil de <?= $_SESSION['username'] ?></a></li>
                         <li><a class="dropdown-item" href="profil_edit.php?id=<?= $_SESSION['id'] ?>">Éditer mon profil</a></li>
                         <?php if ($_SESSION['role'] === "Admin") { ?>
-                            <li><a class="dropdown-item" href="admin.php?id=">Espace administrateur</a></li>
+                            <li><a class="dropdown-item" href="admin.php">Espace administrateur</a></li>
                         <?php } ?>
                         <li>
                             <hr class="dropdown-divider">

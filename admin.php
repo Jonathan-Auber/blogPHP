@@ -24,7 +24,9 @@ if (!isset($_SESSION['id']) || $_SESSION['role'] !== "Admin") {
     $selectUpdateArticle->execute();
     $allUpdateArticle = $selectUpdateArticle->fetchAll(PDO::FETCH_OBJ);
     // var_dump($allUpdateArticle);
-
+    $selectAllArticle = $pdo->prepare("SELECT * FROM articles");
+    $selectAllArticle->execute();
+    $allArticle = $selectAllArticle->fetchAll(PDO::FETCH_OBJ);
 }
 ?>
 <!DOCTYPE html>
@@ -49,6 +51,7 @@ if (!isset($_SESSION['id']) || $_SESSION['role'] !== "Admin") {
                 <option value="2">Nouveaux articles en attente de validation</option>
                 <option value="3">Articles modifiés en attente de validation</option>
                 <option value="4">Articles validés</option>
+                <option value="5">Gérer les articles</option>
             </select>
         </div>
         <div id="user">
@@ -72,7 +75,6 @@ if (!isset($_SESSION['id']) || $_SESSION['role'] !== "Admin") {
                             <td class="align-middle"><?= $user->Username ?></td>
                             <td class="align-middle"><?= $user->Email ?></td>
                             <td class="align-middle text-end">
-                                <!-- <a class="btn btn-primary m-1" href="edit_article.php?id=<?= $user->Id ?>" role="button">Éditer l'article</a> -->
                                 <a class="btn btn-success m-1" href="profil.php?id=<?= $user->Id ?>" role="button">Gérer l'utilisateur</a>
                             </td>
                         </tr>
@@ -167,6 +169,61 @@ if (!isset($_SESSION['id']) || $_SESSION['role'] !== "Admin") {
                         </tr>
                     <?php
                         $rowValid++;
+                    }
+                    ?>
+                </tbody>
+            </table>
+        </div>
+        <div id="allArticles">
+            <h4 class="text-center mt-5">Tous les articles</h4>
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th scope="col" style="width: 4%;">#</th>
+                        <th scope="col">Titre</th>
+                        <th scope="col">Statut</th>
+
+                        <th scope="col"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php $rowArticle = 1;
+                    $modal = 1;
+                    foreach ($allArticle as $article) {
+
+                    ?>
+                        <tr>
+                            <th class="align-middle" scope="row"><?= $rowArticle ?></th>
+                            <td class="align-middle"><?= $article->Title ?></td>
+                            <td class="align-middle"><?= $article->Id ?></td>
+                            <td class="align-middle text-end">
+                                <form action="delete_article.php?id=<?= $article->Id ?>" method="POST">
+                                    <a class="btn btn-primary m-1" href="edit_article.php?id=<?= $article->Id ?>" role="button">Éditer l'article</a>
+                                    <a class="btn btn-success m-1" href="article.php?id=<?= $article->Id ?>" role="button">Voir l'article</a>
+                                    <button type="button" class="btn btn-danger m-1" data-bs-toggle="modal" data-bs-target="#modal<?= $modal ?>">Supprimer l'article</button>
+                                    <div class="modal fade" id="modal<?= $modal ?>" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="exampleModalLabel">Supprimer l'article</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <p>Êtes-vous sur de vouloir supprimer cet article?</p>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                                    <button type="submit" name="deleteArticle" class="btn btn-danger">Supprimer l'article</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </td>
+                        </tr>
+                    <?php
+                        $rowArticle++;
+                        $modal++;
                     }
                     ?>
                 </tbody>

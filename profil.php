@@ -49,7 +49,7 @@ if (isset($_GET['id']) and $_GET['id'] > 0) {
             <?php if (isset($_SESSION['role']) && $_SESSION['role'] === "Admin") { ?>
                 <div class="container">
                     <h3 class="text-center m-5">Gérer l'utilisateur</h3>
-                    <form action="delete_user.php?id=<?= $getId ?>"  method="POST">
+                    <form action="delete_user.php?id=<?= $getId ?>" method="POST">
                         <table class="table table-hover">
                             <thead>
                                 <tr>

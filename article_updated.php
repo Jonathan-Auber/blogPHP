@@ -18,6 +18,7 @@ if (isset($_GET['id']) && $_GET['id'] > 0 && $_SESSION['role'] === "Admin") {
     $author = $getAuthor->fetch();
 
     // Section réservée Admin
+    // Si on refuse la mise à jour, on efface les données de la table tampon
     if (isset($_POST['rejectedUpdate'])) {
         $removeUpdatePicture = './upload/picture/' . $articleUpdatedInfo['Image'];
         unlink($removeUpdatePicture);
@@ -27,10 +28,14 @@ if (isset($_GET['id']) && $_GET['id'] > 0 && $_SESSION['role'] === "Admin") {
         header("Location: admin.php");
     }
 
-    // Récupérer sur la base tampon et envoyé sur la base article
+    // Si on valide, on récupère les données pour les transférer sur la table principale
     if (isset($_POST['validateUpdate'])) {
-        $validateArticle = $pdo->prepare("UPDATE articles SET date = CURRENT_TIMESTAMP, statute = 'Validate', reporting = '' WHERE id = ?");
-        $validateArticle->execute([$getArticle]);
+        $removeOldPicture = './upload/picture/' . $articleInfo['Image'];
+        unlink($removeOldPicture);
+        $validateArticle = $pdo->prepare("UPDATE articles SET title = ?, content = ?, image = ?, date = CURRENT_TIMESTAMP WHERE id = ?");
+        $validateArticle->execute([$articleUpdatedInfo['Title'], $articleUpdatedInfo['Content'], $articleUpdatedInfo['Image'], $getArticle]);
+        $deleteUpdate = $pdo->prepare("DELETE FROM articles_update WHERE article_id = ?");
+        $deleteUpdate->execute([$getArticle]);
         header("Location: article.php?id=" . $getArticle);
     }
 

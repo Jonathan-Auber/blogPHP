@@ -1,7 +1,6 @@
 <?php
 session_start();
 require_once('db.php');
-// IL FAUT SUPPRIMER LAVATAR DU DOSSIER
 
 if (isset($_GET['id']) && $_GET['id'] > 0) {
     $getId = intval($_GET['id']);
@@ -17,7 +16,14 @@ if (isset($_GET['id']) && $_GET['id'] > 0) {
             $updateAllUserComment = $pdo->prepare("UPDATE comments SET user_id = ? WHERE user_id = ?");
             $updateAllUserComment->execute([$accountDeleteId, $getId]);
 
-            // On supprime l'utilisateur
+            // On supprime l'utilisateur et son avatar du dossier
+            $searchOldAvatar = $pdo->prepare("SELECT avatar FROM users WHERE id = ?");
+            $searchOldAvatar->execute([$getId]);
+            $oldAvatar = $searchOldAvatar->fetch(PDO::FETCH_OBJ);
+            if ($oldAvatar->avatar !== "avatar.jpg") {
+                $removeOldAvatar = "./upload/avatar/" . $oldAvatar->avatar;
+                unlink($removeOldAvatar);
+            }
             $deleteUser = $pdo->prepare("DELETE FROM users WHERE id = ?");
             $deleteUser->execute([$getId]);
 

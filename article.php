@@ -18,7 +18,8 @@ if (isset($_GET['id']) && $_GET['id'] > 0) {
         header("Location: profil.php?id=" . $_SESSION['id']);
     }
 
-    if (isset($_POST['delete'])) {
+    // A SUPPRIMER?
+    if (isset($_POST['deleteArticle'])) {
         $pictureName = $articleInfo['Image'];
         $deletePicture = './upload/picture/' . $pictureName;
         unlink($deletePicture);
@@ -162,7 +163,7 @@ if (isset($_GET['id']) && $_GET['id'] > 0) {
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                                            <button type="submit" name="delete" class="btn btn-danger">Supprimer l'article</button>
+                                            <button type="submit" name="deleteArticle" class="btn btn-danger">Supprimer l'article</button>
                                         </div>
                                     </div>
                                 </div>
