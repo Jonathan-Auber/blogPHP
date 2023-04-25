@@ -195,7 +195,7 @@ if (!isset($_SESSION['id']) || $_SESSION['role'] !== "Admin") {
                         <tr>
                             <th class="align-middle" scope="row"><?= $rowArticle ?></th>
                             <td class="align-middle"><?= $article->Title ?></td>
-                            <td class="align-middle"><?= $article->Id ?></td>
+                            <td class="align-middle"><?= $article->Statute ?></td>
                             <td class="align-middle text-end">
                                 <form action="delete_article.php?id=<?= $article->Id ?>" method="POST">
                                     <a class="btn btn-primary m-1" href="edit_article.php?id=<?= $article->Id ?>" role="button">Éditer l'article</a>
