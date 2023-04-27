@@ -58,8 +58,10 @@ if (isset($_POST["emailConnect"], $_POST["passwordConnect"])) {
                 <label for="password">Mot de passe</label>
                 <input required type="password" class="form-control" id="password" name="passwordConnect" placeholder="Mot de passe">
             </div>
-            <div class="text-center"><button type="submit" name="submitConnect" class="btn btn-primary">Se connecter</button></div>
+            <div class="text-center m-4"><button type="submit" name="submitConnect" class="btn btn-primary">Se connecter</button></div>
         </form>
+        <p class="text-center m-5"><a href="reset_step_1.php">Mot de passe oublié?</a></p>
+
         <?php if (isset($error)) {
             echo $error;
         } ?>

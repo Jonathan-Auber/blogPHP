@@ -33,13 +33,14 @@ require_once("db.php");
                 $searchAuthor->execute([$article["User_id"]]);
                 $searchAuthor->fetch();
                 $author = $searchAuthor->fetch();
-                $isFavExist = $pdo->prepare("SELECT * FROM favorite WHERE user_id = ? AND article_id = ?");
-                $isFavExist->execute([$_SESSION['id'], $article['Id']]);
-                $countFav = $isFavExist->rowCount();
-                $isLikeExist = $pdo->prepare("SELECT * FROM like_counter WHERE user_id = ? AND article_id = ?");
-                $isLikeExist->execute([$_SESSION['id'], $article['Id']]);
-                $countLike = $isLikeExist->rowCount();
-
+                if (isset($_SESSION['id'])) {
+                    $isFavExist = $pdo->prepare("SELECT * FROM favorite WHERE user_id = ? AND article_id = ?");
+                    $isFavExist->execute([$_SESSION['id'], $article['Id']]);
+                    $countFav = $isFavExist->rowCount();
+                    $isLikeExist = $pdo->prepare("SELECT * FROM like_counter WHERE user_id = ? AND article_id = ?");
+                    $isLikeExist->execute([$_SESSION['id'], $article['Id']]);
+                    $countLike = $isLikeExist->rowCount();
+                }
             ?>
 
                 <div class="card m-5" style="width: 20rem;">
@@ -53,16 +54,17 @@ require_once("db.php");
                         <div class="d-flex justify-content-between align-items-center">
                             <a href="article.php?id=<?= $article['Id'] ?>" class="btn btn-primary">Lire l'article</a>
                             <span>
-                                <?php 
+                                <?php if(isset($_SESSION['id'])){
                                 if ($countLike === 0) { ?>
                                     <a class="mx-3" href="like.php?id=<?= $article['Id'] ?>"><i class="fa-regular fa-thumbs-up"></i></a>
                                 <?php } elseif ($countLike === 1) { ?>
                                     <a class="mx-3" href="unlike.php?id=<?= $article['Id'] ?>"><i class="fa-solid fa-thumbs-up"></i></a>
-                                <?php } if ($countFav === 0) { ?>
+                                <?php }
+                                if ($countFav === 0) { ?>
                                     <a href="add_fav.php?id=<?= $article['Id'] ?>"><i class="text-danger fa-regular fa-heart"></i></a>
                                 <?php } elseif ($countFav === 1) { ?>
                                     <a href="remove_fav.php?id=<?= $article['Id'] ?>"><i class="text-danger fa-solid fa-heart"></i></a>
-                                <?php  } ?>
+                                <?php  }} ?>
                             </span>
                         </div>
                     </div>
