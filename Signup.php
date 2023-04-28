@@ -93,27 +93,26 @@ if (isset($_POST["email"], $_POST["confirmEmail"], $_POST["username"], $_POST["p
                                 $error = "Votre compte à bien été crée !";
                                 header('Location: login.php');
                             }
+                        } elseif ($password !== $confirmPassword) {
+                            $error = "Les mots de passe rentrer lors du processus sont différents";
+                        } else {
+                            $error = "Le mots de passe doit contenir un minimum de 8 caractères, une majuscule et un caractère spécial";
                         }
-                    } elseif ($password !== $confirmPassword) {
-                        $error = "Les mots de passe rentrer lors du processus sont différents";
                     } else {
-                        $error = "Le mots de passe doit contenir un minimum de 8 caractères, une majuscule et un caractère spécial";
+                        $error = "Votre pseudonyme est trop court ou trop long";
                     }
                 } else {
-                    $error = "Votre pseudonyme est trop court ou trop long";
+                    $error = "Le nom d'utilisateur '$username' existe déjà, veuillez en choisir un autre";
                 }
             } else {
-                $error = "Le nom d'utilisateur '$username' existe déjà, veuillez en choisir un autre";
+                $error = "Cette adresse email '$email' existe déjà";
             }
         } else {
-            $error = "Cette adresse email '$email' existe déjà";
-            // header('Location: login.php');
+            $error = "Votre adresse email est invalide !";
         }
     } else {
-        $error = "Votre adresse email est invalide !";
+        $error = "Les adresses emails ne correspondent pas !";
     }
-} else {
-    $error = "Les adresses emails ne correspondent pas !";
 }
 
 
@@ -176,7 +175,7 @@ if (isset($_POST["email"], $_POST["confirmEmail"], $_POST["username"], $_POST["p
                 <label for="avatar" class="form-label">Avatar</label>
                 <input class="form-control" type="file" id="avatar" name="avatar">
             </div>
-            <button type="submit" name="submit" class="btn btn-primary">Submit</button>
+            <div class="text-center m-5"><button type="submit" name="submit" class="btn btn-primary">Valider</button></div>
         </form>
         <?php
         if (isset($error)) {

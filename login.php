@@ -1,32 +1,36 @@
 <?php
 session_start();
 require_once('db.php');
-
-if (isset($_POST["emailConnect"], $_POST["passwordConnect"])) {
-    $email = htmlspecialchars(trim($_POST["emailConnect"]));
-    $password = htmlspecialchars(trim($_POST["passwordConnect"]));
-    $queryDB = 'SELECT * FROM users WHERE email = ?';
-    $response = $pdo->prepare($queryDB);
-    $response->execute([$email]);
-    $results = $response->fetchAll();
-    foreach ($results as $data) {
-        if ($data['Email'] === $email && password_verify($password, $data['Passwords'])) {
-            $_SESSION['id'] = $data['Id'];
-            $_SESSION['email'] = $data['Email'];
-            $_SESSION['username'] = $data['Username'];
-            $_SESSION['avatar'] = $data['Avatar'];
-            $_SESSION['role'] = $data['Role'];
-            if ($data["Role"] === "Admin") {
-                header('Location: admin.php');
+if(!isset($_SESSION['id'])) {
+    if (isset($_POST["emailConnect"], $_POST["passwordConnect"])) {
+        $email = htmlspecialchars(trim($_POST["emailConnect"]));
+        $password = htmlspecialchars(trim($_POST["passwordConnect"]));
+        $queryDB = 'SELECT * FROM users WHERE email = ?';
+        $response = $pdo->prepare($queryDB);
+        $response->execute([$email]);
+        $results = $response->fetchAll();
+        foreach ($results as $data) {
+            if ($data['Email'] === $email && password_verify($password, $data['Passwords'])) {
+                $_SESSION['id'] = $data['Id'];
+                $_SESSION['email'] = $data['Email'];
+                $_SESSION['username'] = $data['Username'];
+                $_SESSION['avatar'] = $data['Avatar'];
+                $_SESSION['role'] = $data['Role'];
+                if ($data["Role"] === "Admin") {
+                    header('Location: admin.php');
+                } else {
+                    header('Location: profil.php?id=' . $_SESSION["id"]);
+                }
+                // header('Location: index.php');
             } else {
-                header('Location: profil.php?id=' . $_SESSION["id"]);
+                $error = 'Votre adresse email ou votre mot de passe ne correspond pas !';
             }
-            // header('Location: index.php');
-        } else {
-            $error = 'Votre adresse email ou votre mot de passe ne correspond pas !';
         }
     }
-}
+} else {
+    header("Location: index.php");
+ }
+
 
 ?>
 
