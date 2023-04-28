@@ -33,6 +33,10 @@ require_once("db.php");
                 $searchAuthor->execute([$article["User_id"]]);
                 $searchAuthor->fetch();
                 $author = $searchAuthor->fetch();
+                // Compteur de like
+                $countTotalLike = $pdo->prepare("SELECT * FROM like_counter WHERE article_id = ?");
+                $countTotalLike->execute([$article['Id']]);
+                $totalLike = $countTotalLike->rowCount();
                 if (isset($_SESSION['id'])) {
                     $isFavExist = $pdo->prepare("SELECT * FROM favorite WHERE user_id = ? AND article_id = ?");
                     $isFavExist->execute([$_SESSION['id'], $article['Id']]);
@@ -54,17 +58,21 @@ require_once("db.php");
                         <div class="d-flex justify-content-between align-items-center">
                             <a href="article.php?id=<?= $article['Id'] ?>" class="btn btn-primary">Lire l'article</a>
                             <span>
-                                <?php if(isset($_SESSION['id'])){
-                                if ($countLike === 0) { ?>
-                                    <a class="mx-3" href="like.php?id=<?= $article['Id'] ?>"><i class="fa-regular fa-thumbs-up"></i></a>
-                                <?php } elseif ($countLike === 1) { ?>
-                                    <a class="mx-3" href="unlike.php?id=<?= $article['Id'] ?>"><i class="fa-solid fa-thumbs-up"></i></a>
-                                <?php }
-                                if ($countFav === 0) { ?>
-                                    <a href="add_fav.php?id=<?= $article['Id'] ?>"><i class="text-danger fa-regular fa-heart"></i></a>
-                                <?php } elseif ($countFav === 1) { ?>
-                                    <a href="remove_fav.php?id=<?= $article['Id'] ?>"><i class="text-danger fa-solid fa-heart"></i></a>
-                                <?php  }} ?>
+                                <?php if (isset($_SESSION['id'])) {
+                                    if ($countLike === 0) { ?>
+                                        <a class="mx-3 text-decoration-none" href="like.php?id=<?= $article['Id'] ?>"><i class="fa-regular fa-thumbs-up"></i><span class=" mx-1 text-dark"><?= $totalLike ?></span></a>
+                                    <?php } elseif ($countLike === 1) { ?>
+                                        <a class="mx-3 text-decoration-none" href="unlike.php?id=<?= $article['Id'] ?>"><i class="fa-solid fa-thumbs-up"></i><span class=" mx-1 text-dark"><?= $totalLike ?></span></a>
+                                    <?php }
+                                    if ($countFav === 0) { ?>
+                                        <a href="add_fav.php?id=<?= $article['Id'] ?>"><i class="text-danger fa-regular fa-heart"></i></a>
+                                    <?php } elseif ($countFav === 1) { ?>
+                                        <a href="remove_fav.php?id=<?= $article['Id'] ?>"><i class="text-danger fa-solid fa-heart"></i></a>
+                                    <?php  }
+                                } else { ?>
+                                    <a class="mx-3 text-decoration-none" href="#"><i class="fa-regular fa-thumbs-up"></i><span class=" mx-1 text-dark"><?= $totalLike ?></span></a>
+                                    <a href="#"><i class="text-danger fa-regular fa-heart"></i></a>
+                                <?php  } ?>
                             </span>
                         </div>
                     </div>
