@@ -8,7 +8,6 @@ if (isset($_POST['emailRecup']) && !empty($_POST['emailRecup'])) {
     $compareMail = $pdo->prepare("SELECT * FROM users WHERE email = ?");
     $compareMail->execute([$userMail]);
     $isMailExist = $compareMail->fetch(PDO::FETCH_ASSOC);
-    var_dump($isMailExist);
     if ($isMailExist) {
         if ($isMailExist["Recovery_code"] === NULL) {
             $token = rand(10000, 99999);
@@ -20,6 +19,7 @@ if (isset($_POST['emailRecup']) && !empty($_POST['emailRecup'])) {
             // $message = "Veuillez cliquer sur <a href='http://localhost:8888/blogPHP/reset_step_2.php'>ce lien</a> et rentrer le code suivant : " . $token;
             // mail($to, $subject, $message);
             // créer session 10min avec autre token ou pseudo
+            $_SESSION['user_id'] = $isMailExist['Id'];
             $_SESSION['timer'] = time();
             $error = "Un mail à été envoyé à votre adresse email, veuillez suivre les instructions !";
         } else {
