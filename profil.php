@@ -130,6 +130,18 @@ if (isset($_GET['id']) and $_GET['id'] > 0) {
                             $articleRejected++;
                         }
                     }
+                    // $searchFav = $pdo->prepare("SELECT * FROM favorite WHERE user_id = ?");
+                    // $searchFav->execute([$_GET['id']]);
+                    // $allFav = $searchFav->fetchAll();
+                    // var_dump($allFav);
+                    $selectFav = $pdo->prepare("SELECT a.id, title FROM articles as a INNER JOIN favorite as f ON a.id = f.article_id WHERE f.user_id  = ?");
+                    $selectFav->execute([$_SESSION['id']]);
+                    $allFav = $selectFav->fetchAll(PDO::FETCH_ASSOC);
+                    $articleFav = 0;
+                    foreach ($allFav as $fav) {
+                        $articleFav++;
+                    }
+
                     // AFFICHAGE DES ARTICLES VALIDÉS POUR TOUS.
                     if ($articleValidate > 0) {
                         $rowValidate = 1;
@@ -163,8 +175,40 @@ if (isset($_GET['id']) and $_GET['id'] > 0) {
                             </tbody>
                         </table>
                         <?php }
-                    //  AFFICHAGE DES ARTICLES SAUVEGARDÉS
                     if (isset($_SESSION['id']) && $_SESSION['id'] === intval($_GET['id'])) {
+                        // AFFICHAGE DES ARTICLES FAVORIS
+                        if ($articleFav > 0) {
+
+                            $rowFav = 1; ?>
+                            <h4 class="text-center mt-5">Mes articles favoris</h4>
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th scope="col" style="width: 4%;">#</th>
+                                        <th scope="col">Titre</th>
+                                        <th scope="col"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php
+                                    foreach ($allFav as $fav) {
+
+                                    ?>
+                                        <tr>
+                                            <th class="align-middle" scope="row"><?= $rowFav ?></th>
+                                            <td class="align-middle"><?= $fav['title'] ?></td>
+                                            <td class="align-middle text-end">
+                                                <a class="btn btn-primary m-1" href="article.php?id=<?= $fav['id'] ?>" role="button">Voir l'article</a>
+                                            </td>
+                                        </tr>
+                                    <?php
+                                        $rowFav++;
+                                    } ?>
+                                </tbody>
+                            </table>
+                        <?php
+                        }
+                        //  AFFICHAGE DES ARTICLES SAUVEGARDÉS
                         if ($articleSaved > 0) {
                             $rowSaved = 1; ?>
                             <h4 class="text-center mt-5">Mes articles en cours</h4>
