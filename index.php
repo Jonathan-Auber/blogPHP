@@ -47,7 +47,7 @@ require_once("db.php");
                 }
             ?>
 
-                <div class="card m-5" style="width: 20rem;">
+                <div class="card m-5" style="width: 30rem;">
                     <img src="upload/picture/<?= $article['Image'] ?>" class="card-img-top" alt="Image de présentation de l'article">
                     <div class="card-body d-flex flex-column justify-content-between">
                         <div>
